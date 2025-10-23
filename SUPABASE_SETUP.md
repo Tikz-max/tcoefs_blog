@@ -10,8 +10,10 @@ This guide will walk you through setting up Supabase authentication and database
 2. [Configure Authentication](#2-configure-authentication)
 3. [Create Database Tables](#3-create-database-tables)
 4. [Set Up Row Level Security (RLS)](#4-set-up-row-level-security-rls)
-5. [Configure Environment Variables](#5-configure-environment-variables)
-6. [Test Authentication](#6-test-authentication)
+5. [Configure Storage for Images](#5-configure-storage-for-images)
+6. [Configure Environment Variables](#6-configure-environment-variables)
+7. [Test Authentication](#7-test-authentication)
+8. [Admin Setup](#8-admin-setup)
 
 ---
 
@@ -128,6 +130,78 @@ CREATE INDEX IF NOT EXISTS comments_post_id_idx ON public.comments(post_id);
 CREATE INDEX IF NOT EXISTS comments_created_at_idx ON public.comments(created_at DESC);
 ```
 
+### Create Articles Table (For Admin CMS)
+
+```sql
+-- Create articles table
+CREATE TABLE IF NOT EXISTS public.articles (
+  id TEXT PRIMARY KEY, -- Unique alphanumeric ID (e.g., "news1", "news2")
+  title TEXT NOT NULL,
+  excerpt TEXT NOT NULL,
+  content TEXT NOT NULL, -- HTML content with embedded images
+  category TEXT NOT NULL CHECK (category IN ('News', 'Training', 'Research', 'Partnership')),
+  card_image_url TEXT NOT NULL, -- Thumbnail for cards/grid
+  date TEXT NOT NULL, -- Publication date (e.g., "March 23, 2025")
+  read_time TEXT NOT NULL, -- Reading time (e.g., "4 min read")
+  featured BOOLEAN DEFAULT false, -- Only one article can be featured
+  slug TEXT UNIQUE, -- URL-friendly slug (optional)
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+-- Create index for faster queries
+CREATE INDEX IF NOT EXISTS articles_category_idx ON public.articles(category);
+CREATE INDEX IF NOT EXISTS articles_featured_idx ON public.articles(featured);
+CREATE INDEX IF NOT EXISTS articles_date_idx ON public.articles(date DESC);
+CREATE INDEX IF NOT EXISTS articles_created_at_idx ON public.articles(created_at DESC);
+
+-- Create trigger to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = timezone('utc'::text, now());
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_articles_updated_at BEFORE UPDATE ON public.articles
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Ensure only one featured article at a time
+CREATE OR REPLACE FUNCTION ensure_single_featured_article()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.featured = true THEN
+    UPDATE public.articles SET featured = false WHERE id != NEW.id AND featured = true;
+  END IF;
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER ensure_single_featured BEFORE INSERT OR UPDATE ON public.articles
+FOR EACH ROW EXECUTE FUNCTION ensure_single_featured_article();
+```
+
+### Create Article Images Table (Track uploaded images)
+
+```sql
+-- Create article_images table to track images used in articles
+CREATE TABLE IF NOT EXISTS public.article_images (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  article_id TEXT REFERENCES public.articles(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL, -- Supabase Storage URL
+  image_type TEXT CHECK (image_type IN ('card', 'content')), -- 'card' for thumbnail, 'content' for inline
+  alt_text TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  uploaded_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+-- Create index for faster queries
+CREATE INDEX IF NOT EXISTS article_images_article_id_idx ON public.article_images(article_id);
+```
+
 ---
 
 ## 4. Set Up Row Level Security (RLS)
@@ -187,9 +261,151 @@ ON public.comments FOR DELETE
 USING (auth.uid() = user_id);
 ```
 
+### Create RLS Policies for Articles
+
+```sql
+-- Enable RLS on articles table
+ALTER TABLE public.articles ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Anyone can view published articles
+CREATE POLICY "Articles are viewable by everyone"
+ON public.articles FOR SELECT
+USING (true);
+
+-- Policy: Only admins can insert articles (we'll add admin check later)
+CREATE POLICY "Admins can insert articles"
+ON public.articles FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+
+-- Policy: Only admins can update articles
+CREATE POLICY "Admins can update articles"
+ON public.articles FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+
+-- Policy: Only admins can delete articles (but not featured ones)
+CREATE POLICY "Admins can delete non-featured articles"
+ON public.articles FOR DELETE
+USING (
+  featured = false AND
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+```
+
+### Create RLS Policies for Article Images
+
+```sql
+-- Enable RLS on article_images table
+ALTER TABLE public.article_images ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Anyone can view article images
+CREATE POLICY "Article images are viewable by everyone"
+ON public.article_images FOR SELECT
+USING (true);
+
+-- Policy: Only admins can insert images
+CREATE POLICY "Admins can insert images"
+ON public.article_images FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+
+-- Policy: Only admins can delete images
+CREATE POLICY "Admins can delete images"
+ON public.article_images FOR DELETE
+USING (
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+```
+
 ---
 
-## 5. Configure Environment Variables
+## 5. Configure Storage for Images
+
+### Create Storage Bucket
+
+1. Go to **Storage** in your Supabase dashboard
+2. Click **"New bucket"**
+3. Configure:
+   - **Name**: `article-images`
+   - **Public bucket**: ✅ Enabled (so images are publicly accessible)
+   - **File size limit**: 10 MB (recommended)
+   - **Allowed MIME types**: `image/jpeg, image/png, image/gif, image/webp`
+4. Click **"Create bucket"**
+
+### Set Storage Policies
+
+Go to **Storage** → **Policies** → **article-images** and create these policies:
+
+```sql
+-- Policy: Anyone can view images
+CREATE POLICY "Images are publicly accessible"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'article-images');
+
+-- Policy: Only admins can upload images
+CREATE POLICY "Admins can upload images"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'article-images' AND
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+
+-- Policy: Only admins can update images
+CREATE POLICY "Admins can update images"
+ON storage.objects FOR UPDATE
+USING (
+  bucket_id = 'article-images' AND
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+
+-- Policy: Only admins can delete images
+CREATE POLICY "Admins can delete images"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'article-images' AND
+  EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE auth.users.id = auth.uid()
+    AND auth.users.raw_user_meta_data->>'role' = 'admin'
+  )
+);
+```
+
+---
+
+## 6. Configure Environment Variables
 
 ### Get Your Supabase Credentials
 
@@ -215,7 +431,7 @@ USING (auth.uid() = user_id);
 
 ---
 
-## 6. Test Authentication
+## 7. Test Authentication
 
 ### Start Your Development Server
 
@@ -346,6 +562,142 @@ npm run dev
 
 ---
 
+## 8. Admin Setup
+
+### Create Admin User
+
+**Important**: Only ONE admin user should exist for the TcoEFS Blog CMS.
+
+#### Option 1: Set Admin via SQL (Recommended)
+
+1. First, create an account using the normal sign-in flow (email OTP or Google)
+2. Go to **Authentication** → **Users** in Supabase dashboard
+3. Find your user and copy the **User UID**
+4. Go to **SQL Editor** and run:
+
+```sql
+-- Set user as admin
+UPDATE auth.users
+SET raw_user_meta_data = jsonb_set(
+  COALESCE(raw_user_meta_data, '{}'::jsonb),
+  '{role}',
+  '"admin"'
+)
+WHERE id = 'YOUR-USER-UID-HERE';
+```
+
+#### Option 2: Set Admin via Dashboard
+
+1. Go to **Authentication** → **Users**
+2. Click on your user
+3. Under **User Metadata** → **raw_user_meta_data**, add:
+   ```json
+   {
+     "role": "admin"
+   }
+   ```
+4. Click **Save**
+
+### Verify Admin Access
+
+Run this SQL to verify admin status:
+
+```sql
+SELECT id, email, raw_user_meta_data->>'role' as role
+FROM auth.users
+WHERE raw_user_meta_data->>'role' = 'admin';
+```
+
+### Migrate Existing Articles to Database
+
+Once the `articles` table is created, migrate your existing 8 articles from `blogPosts.js`:
+
+```sql
+-- Example migration for first article
+INSERT INTO public.articles (id, title, excerpt, content, category, card_image_url, date, read_time, featured)
+VALUES (
+  '1',
+  'Leadership Transition: Prof. Dauda Bawa Appointed as New TCoEFS Director',
+  'Outgoing Director, Prof. Amaza, handing over leadership to the newly appointed Director of the TCoEFS, Prof. Dauda Bawa.',
+  '<div class="space-y-4"><p>In a significant leadership development...</p></div>',
+  'News',
+  '/blog-images/leadership-card.png',
+  'March 23, 2025',
+  '4 min read',
+  true
+);
+
+-- Repeat for articles 2-8 with their respective data
+```
+
+**Note**: After migration, update your frontend code to fetch articles from Supabase instead of the static `blogPosts.js` file.
+
+---
+
+## Database Schema Reference (Complete)
+
+### Articles Table
+
+| Column          | Type      | Description                           |
+|-----------------|-----------|---------------------------------------|
+| id              | TEXT      | Primary key (unique alphanumeric)     |
+| title           | TEXT      | Article title                         |
+| excerpt         | TEXT      | Short description                     |
+| content         | TEXT      | Full HTML content                     |
+| category        | TEXT      | News/Training/Research/Partnership    |
+| card_image_url  | TEXT      | Thumbnail image URL                   |
+| date            | TEXT      | Publication date                      |
+| read_time       | TEXT      | Reading time estimate                 |
+| featured        | BOOLEAN   | Is this the featured article?         |
+| slug            | TEXT      | URL-friendly slug (optional)          |
+| created_at      | TIMESTAMP | Creation timestamp                    |
+| updated_at      | TIMESTAMP | Last update timestamp                 |
+| created_by      | UUID      | Admin who created (nullable)          |
+| updated_by      | UUID      | Admin who last updated (nullable)     |
+
+### Article Images Table
+
+| Column      | Type      | Description                           |
+|-------------|-----------|---------------------------------------|
+| id          | UUID      | Primary key (auto-generated)          |
+| article_id  | TEXT      | Foreign key to articles               |
+| image_url   | TEXT      | Supabase Storage URL                  |
+| image_type  | TEXT      | 'card' or 'content'                   |
+| alt_text    | TEXT      | Image alt text (optional)             |
+| created_at  | TIMESTAMP | Upload timestamp                      |
+| uploaded_by | UUID      | Admin who uploaded (nullable)         |
+
+---
+
+## Admin CMS Next Steps
+
+After setting up the database and admin user:
+
+1. **Create Admin Routes**:
+   - `/admin` - Admin dashboard
+   - `/admin/articles` - Article list view
+   - `/admin/articles/new` - Create new article
+   - `/admin/articles/:id/edit` - Edit article
+
+2. **Implement Admin Components**:
+   - Admin layout with navigation
+   - Article list with search/filter
+   - Rich text editor for content creation
+   - Image upload component
+   - Featured article toggle
+
+3. **Update Frontend**:
+   - Fetch articles from Supabase instead of `blogPosts.js`
+   - Update `getPostById()`, `getFeaturedPosts()`, `getRecentPosts()`
+   - Handle dynamic article IDs from database
+
+4. **ID Generation Strategy**:
+   - Auto-increment: `news1`, `news2`, `news3`, etc.
+   - Or use slug-based: `leadership-transition-2025`
+   - Ensure uniqueness constraint is enforced
+
+---
+
 ## Support
 
 - **Supabase Docs**: https://supabase.com/docs
@@ -354,6 +706,28 @@ npm run dev
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** January 2025  
+**Document Version:** 2.0  
+**Last Updated:** October 23, 2024  
 **Maintained by:** TcoEFS Development Team
+
+---
+
+## TODO: Admin CMS Implementation Checklist
+
+- [ ] Create `articles` table in Supabase
+- [ ] Create `article_images` table in Supabase
+- [ ] Set up Storage bucket for images
+- [ ] Configure RLS policies for admin-only access
+- [ ] Set up admin user with proper role
+- [ ] Migrate existing 8 articles from `blogPosts.js` to database
+- [ ] Create admin authentication check middleware
+- [ ] Build admin dashboard layout
+- [ ] Implement article list view with search/filter
+- [ ] Build article creation form with rich text editor
+- [ ] Add image upload functionality
+- [ ] Implement article update/edit functionality
+- [ ] Add article delete functionality (with featured check)
+- [ ] Build featured article toggle UI
+- [ ] Update frontend to fetch from database
+- [ ] Test all CRUD operations
+- [ ] Deploy and verify production functionality

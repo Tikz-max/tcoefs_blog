@@ -23,49 +23,134 @@
 8. ✅ Phone icon redirects to contact page (https://www.tcoefs-unijos.org/contact)
 
 **What's Left to Implement:**
-- ⏳ **User Authentication System:**
-  - Sign up / Sign in functionality
-  - User account management
-  - Session handling
+- ✅ **User Authentication System:**
+  - ✅ Sign up / Sign in functionality (Email OTP, Google OAuth)
+  - ✅ User account management
+  - ✅ Session handling
   
-- ⏳ **Social Features (Requires Authentication):**
-  - **Like/Heart button on articles** - Users must be signed in to like posts
-  - **Comment system** - Users must have an account to comment on articles
-  - **Share functionality** - Social sharing buttons for articles
+- ✅ **Social Features (Requires Authentication):**
+  - ✅ **Like/Heart button on articles** - Users must be signed in to like posts
+  - ✅ **Comment system** - Users must have an account to comment on articles
+  - ✅ **Share functionality** - Copy link to clipboard with visual feedback
   
 - ⏳ **User Profile:**
   - View liked articles
   - View comment history
   - Profile settings
 
+- ⏳ **Admin CMS (Content Management System):**
+  - **Admin Authentication:**
+    - Single admin account with elevated privileges
+    - Separate admin login/authentication flow
+    - Admin-only routes and components
+  
+  - **Create New News Article:**
+    - Form to input all article data:
+      - Card image (thumbnail for grid/featured display)
+      - Publication date
+      - Read time (e.g., "4 min read")
+      - Category (News, Training, Research, Partnership)
+      - Title
+      - Excerpt (short description)
+      - Full content with rich text editor
+      - Ability to upload and insert images within content
+      - Images should match content width
+      - Auto-generate unique alphanumeric ID for new articles
+    - Preview before publishing
+    - Publish/Save as draft functionality
+  
+  - **Update Existing News:**
+    - List view of all articles
+    - Search/filter articles by category, date, title
+    - Edit any field of existing articles
+    - Update images (both card and content images)
+    - Maintain unique ID throughout updates
+  
+  - **Delete News Article:**
+    - Delete any non-featured article
+    - Confirmation dialog before deletion
+    - Cascade delete related data (likes, comments)
+    - Cannot delete if article is currently featured
+  
+  - **Manage Featured News:**
+    - Select any article to be featured
+    - Only one article can be featured at a time
+    - Cannot delete currently featured article (must unfeature first)
+    - Featured article appears in hero section of homepage
+  
+  - **Image Management:**
+    - Upload images for article cards
+    - Upload images to be inserted in article content
+    - Images in content should be centered and match content width
+    - Image preview and management
+    - Automatic image optimization/resizing
+
 **Current Status:**
-- Blog is fully functional for reading articles
-- Navigation and search working perfectly
-- All 8 news articles migrated with full content and images
-- Ready for authentication and social features implementation
+- ✅ Blog is fully functional for reading articles
+- ✅ Navigation and search working perfectly
+- ✅ All 8 news articles migrated with full content and images
+- ✅ User authentication implemented (Email OTP, Google OAuth)
+- ✅ Social features implemented (Like, Comment, Share)
+- ✅ React Router with proper routing (/news/1, /news/2, etc.)
+- ✅ Dark mode toggle with localStorage persistence
+- ✅ Category filtering (News, Training, Research, Partnership)
+- ⏳ Admin CMS for content management (Next major feature)
 
 **Technical Stack:**
 - React + Vite
+- React Router DOM (client-side routing)
 - Tailwind CSS v4
 - Lucide React (icons)
 - Gambarino font (custom webfont)
+- Supabase (Authentication, Database, Storage)
 
 **File Structure:**
-- `src/components/Homepage.jsx` - Main homepage with navigation, search, blog grid
-- `src/components/ArticleView.jsx` - Individual article page
-- `src/data/blogPosts.js` - All blog data with full HTML content
+- `src/components/Homepage.jsx` - Main homepage with navigation, search, blog grid, category filters
+- `src/components/ArticleView.jsx` - Individual article page with like, share, comment
+- `src/components/auth/` - Authentication components (AuthModal, UserMenu)
+- `src/components/` - Social features (LikeButton, ShareButton, CommentSection, CardSocialActions)
+- `src/context/AuthContext.jsx` - Authentication state management
+- `src/lib/supabase.js` - Supabase client and helper functions
+- `src/data/blogPosts.js` - All blog data with full HTML content (will be replaced by database)
 - `public/blog-images/` - All migrated blog images organized by post
 - `designGuide/styles-new.md` - Complete style guide
 
-**Next Steps for Authentication:**
-1. Set up backend API or use service like Firebase/Supabase
-2. Create authentication components (Login, Signup, UserProfile)
-3. Implement protected routes for authenticated features
-4. Add like/heart button to ArticleView (only visible when logged in)
-5. Add comment section to ArticleView (only accessible when logged in)
-6. Add share buttons to ArticleView
-7. Store user interactions (likes, comments) in database
-8. Display user's liked articles and comments in profile
+**Next Steps for Admin CMS:**
+1. **Database Migration:**
+   - Move blog posts from `blogPosts.js` to Supabase database
+   - Create `articles` table with all necessary fields
+   - Migrate existing 8 articles to database
+   - Update frontend to fetch from database instead of static file
+
+2. **Admin Authentication:**
+   - Create admin role/flag in Supabase auth
+   - Set up admin-only authentication check
+   - Create admin login page/route
+   - Protect admin routes with auth guards
+
+3. **Admin Dashboard:**
+   - Create admin layout/navigation
+   - Article list view with search/filter
+   - Quick actions (Edit, Delete, Feature/Unfeature)
+   - Statistics dashboard (total articles, by category, etc.)
+
+4. **Article Editor:**
+   - Rich text editor for content (TinyMCE, Quill, or similar)
+   - Image upload and insertion functionality
+   - Form validation for all required fields
+   - Auto-generate unique alphanumeric IDs
+   - Preview mode before publishing
+
+5. **Image Management:**
+   - Supabase Storage for image uploads
+   - Image optimization/compression
+   - Automatic width constraints for content images
+   - Delete unused images when article is deleted
+
+6. **Featured Article Management:**
+   - UI to select/change featured article
+   - Validation to prevent deleting featured article
+   - Update homepage to fetch featured status from database
 
 **Important Design Notes:**
 - Maintain organic minimalism with green color palette throughout
@@ -204,6 +289,6 @@ Both selections remove unnecessary elements while maintaining warmth:
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** 2024  
-**Next Review:** After Category page selection
+**Document Version:** 2.0  
+**Last Updated:** October 23, 2024  
+**Next Review:** After Admin CMS implementation
