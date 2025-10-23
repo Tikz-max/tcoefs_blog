@@ -147,7 +147,7 @@ export const blogPosts = [
       "TCoEFS Participates in Cameroon Study Visit on Sustainable Agricultural Systems",
     excerpt:
       "Centre representatives engage in cross-border knowledge exchange focusing on sustainable agricultural practices and climate-resilient farming systems.",
-    date: "February 28, 2025",
+    date: "March 8, 2025",
     readTime: "6 min read",
     image:
       "/blog-images/tcoefs-participates-in-cameroon-study-visit-on-sustainable-agricultural-systems/images/img-1.jpeg",
