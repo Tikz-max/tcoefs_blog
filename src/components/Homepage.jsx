@@ -351,62 +351,64 @@ const Homepage = () => {
       </section>
 
       {/* Main Content */}
-      <main className="max-w-[1200px] mx-auto px-6 md:px-12 pb-16">
-        {/* Featured Post */}
-        <Link
-          to={`/news/${featuredPost.id}`}
-          className={`block mb-12 bg-white rounded-lg border border-[#d9e8e0] overflow-hidden hover:shadow-lg transition-all duration-[220ms] cursor-pointer group ${searchTerm || selectedCategory ? "opacity-0 h-0 overflow-hidden mb-0" : "opacity-100"}`}
-        >
-          <div className="flex flex-col md:flex-row">
-            {/* Featured Image - Left Side */}
-            <div className="w-full md:w-1/2 aspect-[16/9] md:aspect-auto md:h-auto overflow-hidden bg-sage-light">
-              <img
-                src={featuredPost.image}
-                alt={featuredPost.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[220ms]"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                }}
-              />
-            </div>
-
-            {/* Content - Right Side */}
-            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-3 text-xs text-secondary uppercase tracking-wider font-medium">
-                <span>{featuredPost.category}</span>
-                <span>•</span>
-                <span>Featured</span>
-              </div>
-
-              <h2 className="text-2xl md:text-3xl lg:text-[38px] font-bold text-primary mb-4 group-hover:text-accent transition-all duration-[180ms] leading-tight">
-                {featuredPost.title}
-              </h2>
-
-              <p className="text-[15px] md:text-[17px] leading-[26px] md:leading-[28px] text-text mb-5">
-                {featuredPost.excerpt}
-              </p>
-
-              <div className="flex items-center justify-between mt-6">
-                <div className="flex items-center gap-3 text-xs text-secondary">
-                  <span>{featuredPost.date}</span>
-                  <span>•</span>
-                  <span>{featuredPost.readTime}</span>
-                </div>
-                <CardSocialActions
-                  postId={featuredPost.id}
-                  onAuthRequired={() => setAuthModalOpen(true)}
+      <main className="max-w-[1400px] mx-auto px-6 md:px-8 pb-16">
+        {/* Featured Post - Original Width */}
+        <div className="max-w-[1200px] mx-auto">
+          <Link
+            to={`/news/${featuredPost.id}`}
+            className={`block mb-12 bg-white rounded-lg border border-[#d9e8e0] overflow-hidden hover:shadow-lg transition-all duration-[220ms] cursor-pointer group ${searchTerm || selectedCategory ? "opacity-0 h-0 overflow-hidden mb-0" : "opacity-100"}`}
+          >
+            <div className="flex flex-col md:flex-row">
+              {/* Featured Image - Left Side */}
+              <div className="w-full md:w-1/2 aspect-[16/9] md:aspect-auto md:h-auto overflow-hidden bg-sage-light">
+                <img
+                  src={featuredPost.image}
+                  alt={featuredPost.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[220ms]"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
                 />
               </div>
+
+              {/* Content - Right Side */}
+              <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-3 text-xs text-secondary uppercase tracking-wider font-medium">
+                  <span>{featuredPost.category}</span>
+                  <span>•</span>
+                  <span>Featured</span>
+                </div>
+
+                <h2 className="text-2xl md:text-3xl lg:text-[38px] font-bold text-primary mb-4 group-hover:text-accent transition-all duration-[180ms] leading-tight">
+                  {featuredPost.title}
+                </h2>
+
+                <p className="text-[15px] md:text-[17px] leading-[26px] md:leading-[28px] text-text mb-5">
+                  {featuredPost.excerpt}
+                </p>
+
+                <div className="flex items-center justify-between mt-6">
+                  <div className="flex items-center gap-3 text-xs text-secondary">
+                    <span>{featuredPost.date}</span>
+                    <span>•</span>
+                    <span>{featuredPost.readTime}</span>
+                  </div>
+                  <CardSocialActions
+                    postId={featuredPost.id}
+                    onAuthRequired={() => setAuthModalOpen(true)}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
 
         {/* Section Header */}
         <div
           id="blogs-section"
           className={`mb-8 transition-all duration-[220ms] ${searchTerm || selectedCategory ? "mt-24 md:mt-32" : "mt-48"}`}
         >
-          <h2 className="text-[30px] leading-[42px] text-primary font-semibold">
+          <h2 className="text-[30px] leading-[42px] text-primary font-semibold mb-4 pb-4 border-b border-[#d9e8e0]/50">
             Blogs
           </h2>
         </div>
@@ -424,7 +426,7 @@ const Homepage = () => {
 
         {/* Recent Posts Grid */}
         {!searchTerm || recentPosts.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 md:gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 md:gap-6 lg:gap-8">
             {recentPosts.map((post) => (
               <Link
                 key={post.id}
@@ -432,7 +434,7 @@ const Homepage = () => {
                 className="block bg-white rounded-lg border border-[#d9e8e0] overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-[220ms] cursor-pointer group animate-[fadeIn_220ms_ease-out]"
               >
                 {/* Image at top */}
-                <div className="w-full h-72 md:h-80 overflow-hidden bg-sage-light">
+                <div className="w-full h-80 md:h-96 overflow-hidden bg-sage-light">
                   <img
                     src={post.image}
                     alt={post.title}
@@ -539,7 +541,9 @@ const Homepage = () => {
               {/* Social Icons */}
               <div className="flex items-center gap-3">
                 <a
-                  href="#"
+                  href="https://www.facebook.com/share/19vqPg5CmF/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 transition-all duration-[180ms]"
                   aria-label="Facebook"
                 >
@@ -548,7 +552,9 @@ const Homepage = () => {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/company/tetfund-centre-of-excellence-in-food-security-tcoefs-university-of-jos/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 transition-all duration-[180ms]"
                   aria-label="LinkedIn"
                 >
@@ -557,7 +563,9 @@ const Homepage = () => {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/tcoefs?igsh=MXQwNjlvN3AwN2JyYw=="
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 transition-all duration-[180ms]"
                   aria-label="Instagram"
                 >
@@ -566,12 +574,14 @@ const Homepage = () => {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://x.com/TETFundCoEFS?t=LPdrGIpLtPrnXTVia-BPvQ&s=09"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center rounded bg-white/10 hover:bg-white/20 transition-all duration-[180ms]"
-                  aria-label="Twitter"
+                  aria-label="Twitter/X"
                 >
                   <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                 </a>
               </div>
