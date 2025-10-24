@@ -8,6 +8,7 @@ const AdminLayout = ({ children }) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -35,100 +36,229 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-sage-light transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        {/* Logo/Brand */}
-        <div className="h-16 border-b border-sage-light flex items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">TC</span>
-            </div>
-            <span className="font-bold text-primary text-lg">
-              TCoEFS Admin
-            </span>
-          </Link>
-          {/* Close button for mobile */}
-          <button
+    <>
+      {/* Global CSS for layout */}
+      <style>{`
+        .admin-layout-container {
+          display: flex;
+          min-height: 100vh;
+          background-color: #f2f8f5;
+        }
+
+        .admin-sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          width: 256px;
+          background: white;
+          border-right: 1px solid #d9e8e0;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+          z-index: 50;
+          transform: translateX(-100%);
+          transition: all 300ms ease-in-out;
+        }
+
+        .admin-sidebar.open {
+          transform: translateX(0);
+        }
+
+        .admin-sidebar.collapsed {
+          width: 72px;
+        }
+
+        .admin-content-wrapper {
+          flex: 1;
+          min-height: 100vh;
+          margin-left: 0;
+          transition: margin-left 300ms ease-in-out;
+        }
+
+        /* Desktop: Always show sidebar and offset content */
+        @media (min-width: 1024px) {
+          .admin-sidebar {
+            transform: translateX(0) !important;
+          }
+
+          .admin-content-wrapper {
+            margin-left: 256px;
+          }
+
+          .admin-sidebar.collapsed ~ .admin-content-wrapper {
+            margin-left: 72px;
+          }
+        }
+
+        /* Mobile overlay */
+        .sidebar-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 40;
+        }
+
+        @media (min-width: 1024px) {
+          .sidebar-overlay {
+            display: none;
+          }
+        }
+      `}</style>
+
+      <div className="admin-layout-container">
+        {/* Sidebar Overlay for Mobile */}
+        {sidebarOpen && (
+          <div
+            className="sidebar-overlay"
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 hover:bg-sage-light rounded-lg transition-quick"
-          >
-            <X className="w-5 h-5 text-primary" />
-          </button>
-        </div>
+          />
+        )}
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
-
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-quick ${
-                  active
-                    ? "bg-accent text-white"
-                    : "text-primary hover:bg-sage-light"
-                }`}
+        {/* Sidebar */}
+        <aside
+          className={`admin-sidebar ${sidebarOpen ? "open" : ""} ${sidebarCollapsed ? "collapsed" : ""}`}
+        >
+          <div className="flex flex-col h-full">
+            {/* Collapse Button - Desktop Only - At Top */}
+            <div className="hidden lg:flex items-center justify-end py-3 px-4 border-b border-sage-light/50 flex-shrink-0">
+              <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="p-2 hover:bg-sage-light rounded-lg transition-quick text-secondary hover:text-primary"
+                aria-label={
+                  sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+                }
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+                {sidebarCollapsed ? (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
 
-        {/* User Info & Sign Out */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-sage-light bg-white">
-          <div className="mb-3 px-4">
-            <p className="text-xs text-secondary font-medium">Signed in as</p>
-            <p className="text-sm text-primary font-semibold truncate">
-              {user?.email}
-            </p>
+            {/* Logo/Header */}
+            <div className="h-20 border-b border-sage-light flex items-center justify-between px-6 flex-shrink-0 mb-6">
+              {!sidebarCollapsed ? (
+                <Link to="/" className="flex items-center gap-3 flex-1">
+                  <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center shadow-sm">
+                    <span className="text-white font-bold text-lg">TC</span>
+                  </div>
+                  <span className="font-bold text-primary text-xl">
+                    TCoEFS Admin
+                  </span>
+                </Link>
+              ) : (
+                <div className="w-full flex justify-center">
+                  <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center shadow-sm">
+                    <span className="text-white font-bold text-lg">TC</span>
+                  </div>
+                </div>
+              )}
+              {/* Mobile close button - only visible on mobile */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden p-2 hover:bg-sage-light rounded-lg transition-quick ml-2"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5 text-primary" />
+              </button>
+            </div>
+
+            {/* Navigation Links */}
+            <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.path);
+
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-quick font-medium ${
+                      active
+                        ? "bg-accent text-white shadow-sm"
+                        : "text-primary hover:bg-sage-light"
+                    } ${sidebarCollapsed ? "justify-center" : ""}`}
+                    title={sidebarCollapsed ? item.name : ""}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    {!sidebarCollapsed && <span>{item.name}</span>}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* User Info & Sign Out */}
+            <div className="p-5 border-t border-sage-light bg-white flex-shrink-0">
+              {!sidebarCollapsed && (
+                <div className="mb-4 px-1">
+                  <p className="text-xs text-secondary font-medium uppercase tracking-wider mb-1.5">
+                    Signed in as
+                  </p>
+                  <p className="text-sm text-primary font-semibold truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              )}
+              <button
+                onClick={handleSignOut}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-primary hover:bg-red-50 hover:text-red-600 transition-quick font-medium ${
+                  sidebarCollapsed ? "justify-center" : ""
+                }`}
+                title={sidebarCollapsed ? "Sign Out" : ""}
+              >
+                <LogOut className="w-5 h-5 flex-shrink-0" />
+                {!sidebarCollapsed && <span>Sign Out</span>}
+              </button>
+            </div>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-primary hover:bg-red-50 hover:text-red-600 transition-quick"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Sign Out</span>
-          </button>
+        </aside>
+
+        {/* Main Content Area */}
+        <div className="admin-content-wrapper">
+          {/* Mobile Header with Hamburger */}
+          <header className="lg:hidden h-20 bg-white border-b border-sage-light flex items-center justify-between px-6 sticky top-0 z-30">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 hover:bg-sage-light rounded-lg transition-quick"
+              aria-label="Open menu"
+            >
+              <Menu className="w-6 h-6 text-primary" />
+            </button>
+            <h1 className="text-xl font-bold text-primary">TCoEFS Admin</h1>
+            <div className="w-10"></div>
+          </header>
+
+          {/* Main Content */}
+          <main className="bg-background min-h-screen">{children}</main>
         </div>
-      </aside>
-
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        {/* Mobile Header */}
-        <header className="lg:hidden h-16 bg-white border-b border-sage-light flex items-center justify-between px-4">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 hover:bg-sage-light rounded-lg transition-quick"
-          >
-            <Menu className="w-6 h-6 text-primary" />
-          </button>
-          <h1 className="text-lg font-bold text-primary">TCoEFS Admin</h1>
-          <div className="w-10"></div>
-        </header>
-
-        {/* Main Content */}
-        <main className="flex-1 bg-background">{children}</main>
       </div>
-    </div>
+    </>
   );
 };
 
