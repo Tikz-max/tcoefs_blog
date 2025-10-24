@@ -242,6 +242,5 @@ Happy blogging! 🌿
 
 ---
 
-**Built by**: AI Assistant  
-**Date**: December 2024  
+
 **Version**: 1.0
