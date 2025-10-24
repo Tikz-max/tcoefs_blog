@@ -12,8 +12,9 @@ import {
   ChevronLeft,
   ChevronRight,
   MoveDown,
+  Loader2,
 } from "lucide-react";
-import { getFeaturedPosts, getRecentPosts } from "../data/blogPosts";
+import { admin } from "../lib/supabase";
 import UserMenu from "./auth/UserMenu";
 import AuthModal from "./auth/AuthModal";
 import CardSocialActions from "./CardSocialActions";
@@ -33,6 +34,9 @@ const Homepage = () => {
   const [showScrollArrow, setShowScrollArrow] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [allPosts, setAllPosts] = useState([]);
+  const [featuredPost, setFeaturedPost] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Toggle dark mode and persist to localStorage
   useEffect(() => {
@@ -45,13 +49,35 @@ const Homepage = () => {
     }
   }, [darkMode]);
 
-  // Get real blog data
-  const featuredPosts = getFeaturedPosts();
-  const featuredPost = featuredPosts[0]; // Main featured post
-  const allPosts = getRecentPosts(100); // Get all posts
+  // Load articles from database
+  useEffect(() => {
+    loadArticles();
+  }, []);
 
-  // Filter posts based on search term and category
+  const loadArticles = async () => {
+    setLoading(true);
+    try {
+      // Get all articles
+      const { data: articles } = await admin.getAllArticles(1, 100);
+      setAllPosts(articles || []);
+
+      // Get featured article
+      const { data: featured } = await admin.getFeaturedArticle();
+      setFeaturedPost(featured);
+    } catch (error) {
+      console.error("Error loading articles:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter posts based on search term and category (excluding featured post)
   const filteredPosts = allPosts.filter((post) => {
+    // Exclude featured post from the grid
+    if (featuredPost && post.id === featuredPost.id) {
+      return false;
+    }
+
     const matchesSearch =
       !searchTerm ||
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -148,6 +174,18 @@ const Homepage = () => {
     }
     return pages;
   };
+
+  // Show loading state while fetching articles
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-accent animate-spin mx-auto mb-4" />
+          <p className="text-primary text-lg">Loading articles...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background hide-scrollbar overflow-y-auto">
@@ -362,7 +400,7 @@ const Homepage = () => {
               {/* Featured Image - Left Side */}
               <div className="w-full md:w-1/2 aspect-[16/9] md:aspect-auto md:h-auto overflow-hidden bg-sage-light">
                 <img
-                  src={featuredPost.image}
+                  src={featuredPost.card_image_url}
                   alt={featuredPost.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[220ms]"
                   onError={(e) => {
@@ -391,7 +429,7 @@ const Homepage = () => {
                   <div className="flex items-center gap-3 text-xs text-secondary">
                     <span>{featuredPost.date}</span>
                     <span>•</span>
-                    <span>{featuredPost.readTime}</span>
+                    <span>{featuredPost.read_time}</span>
                   </div>
                   <CardSocialActions
                     postId={featuredPost.id}
@@ -436,7 +474,7 @@ const Homepage = () => {
                 {/* Image at top */}
                 <div className="w-full h-80 md:h-96 overflow-hidden bg-sage-light">
                   <img
-                    src={post.image}
+                    src={post.card_image_url}
                     alt={post.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[220ms]"
                     onError={(e) => {
@@ -463,7 +501,7 @@ const Homepage = () => {
                     <div className="flex items-center gap-2 text-xs text-secondary">
                       <span>{post.date}</span>
                       <span>•</span>
-                      <span>{post.readTime}</span>
+                      <span>{post.read_time}</span>
                     </div>
                     <CardSocialActions
                       postId={post.id}

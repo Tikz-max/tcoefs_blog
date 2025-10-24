@@ -1,15 +1,8 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useParams,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { AdminProvider } from "./context/AdminContext";
 import Homepage from "./components/Homepage";
 import ArticleView from "./components/ArticleView";
-import { getPostById } from "./data/blogPosts";
 import AdminRoute from "./components/admin/AdminRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./components/admin/AdminDashboard";
@@ -26,7 +19,7 @@ function App() {
             <Route path="/" element={<Homepage />} />
 
             {/* Individual News Article Route - matches /news/1, /news/2, etc. */}
-            <Route path="/news/:id" element={<ArticleViewWrapper />} />
+            <Route path="/news/:id" element={<ArticleView />} />
 
             {/* Admin Routes */}
             <Route
@@ -74,19 +67,6 @@ function App() {
       </AdminProvider>
     </AuthProvider>
   );
-}
-
-// Wrapper component to handle article loading from URL
-function ArticleViewWrapper() {
-  const { id } = useParams();
-  const article = getPostById(parseInt(id));
-
-  if (!article) {
-    // Redirect to homepage if article not found
-    return <Navigate to="/" replace />;
-  }
-
-  return <ArticleView article={article} />;
 }
 
 export default App;

@@ -298,9 +298,10 @@ export const admin = {
       .from("articles")
       .select("*")
       .eq("featured", true)
-      .single();
+      .limit(1);
 
-    return { data, error };
+    // Return first result or null if no featured article
+    return { data: data && data.length > 0 ? data[0] : null, error };
   },
 
   // Search articles

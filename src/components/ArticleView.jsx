@@ -1,6 +1,14 @@
-import { ArrowLeft, Clock, User, Phone, Moon, Sun } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { getRecentPosts } from "../data/blogPosts";
+import {
+  ArrowLeft,
+  Clock,
+  User,
+  Phone,
+  Moon,
+  Sun,
+  Loader2,
+} from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { admin } from "../lib/supabase";
 import { useState, useEffect } from "react";
 import LikeButton from "./LikeButton";
 import ShareButton from "./ShareButton";
@@ -8,8 +16,12 @@ import CommentSection from "./CommentSection";
 import UserMenu from "./auth/UserMenu";
 import AuthModal from "./auth/AuthModal";
 
-const ArticleView = ({ article }) => {
+const ArticleView = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [article, setArticle] = useState(null);
+  const [relatedBlogs, setRelatedBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     // Initialize from localStorage
@@ -28,17 +40,55 @@ const ArticleView = ({ article }) => {
     }
   }, [darkMode]);
 
-  // Scroll to top when article loads
+  // Load article from database
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [article]);
+    loadArticle();
+  }, [id]);
+
+  const loadArticle = async () => {
+    setLoading(true);
+    try {
+      // Get article by ID
+      const { data: articleData } = await admin.getArticleById(id);
+
+      if (!articleData) {
+        // Article not found, redirect to homepage
+        navigate("/");
+        return;
+      }
+
+      setArticle(articleData);
+
+      // Get related articles (excluding current)
+      const { data: allArticles } = await admin.getAllArticles(1, 100);
+      const related = (allArticles || [])
+        .filter((post) => post.id !== id)
+        .slice(0, 4);
+      setRelatedBlogs(related);
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error("Error loading article:", error);
+      navigate("/");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-accent animate-spin mx-auto mb-4" />
+          <p className="text-primary text-lg">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!article) return null;
-
-  // Get related blogs (latest posts excluding current article)
-  const relatedBlogs = getRecentPosts(4).filter(
-    (post) => post.id !== article.id,
-  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,7 +136,7 @@ const ArticleView = ({ article }) => {
           <div className="flex items-center gap-2 text-xs text-secondary">
             <span>{article.date}</span>
             <span>•</span>
-            <span>{article.readTime}</span>
+            <span>{article.read_time}</span>
           </div>
         </div>
 
@@ -102,11 +152,11 @@ const ArticleView = ({ article }) => {
       </div>
 
       {/* Featured Image */}
-      {article.image && (
+      {article.card_image_url && (
         <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-8">
           <div className="w-full aspect-[16/9] overflow-hidden rounded-lg">
             <img
-              src={article.image}
+              src={article.card_image_url}
               alt={article.title}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -215,7 +265,7 @@ const ArticleView = ({ article }) => {
                 {/* Image */}
                 <div className="w-full aspect-[4/3] overflow-hidden bg-sage-light">
                   <img
-                    src={blog.image}
+                    src={blog.card_image_url}
                     alt={blog.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[220ms]"
                     onError={(e) => {
@@ -243,7 +293,7 @@ const ArticleView = ({ article }) => {
                   {/* Read Time */}
                   <div className="flex items-center gap-2 text-xs text-secondary">
                     <Clock size={14} />
-                    <span>{blog.readTime}</span>
+                    <span>{blog.read_time}</span>
                   </div>
                 </div>
               </Link>
