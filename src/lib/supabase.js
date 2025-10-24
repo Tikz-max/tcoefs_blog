@@ -70,6 +70,13 @@ export const auth = {
   onAuthStateChange(callback) {
     return supabase.auth.onAuthStateChange(callback);
   },
+
+  // Check if user is admin
+  async isAdmin() {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) return false;
+    return data.user.user_metadata?.role === "admin";
+  },
 };
 
 // Database helper functions
@@ -173,5 +180,277 @@ export const db = {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     return { data: data || [], error };
+  },
+};
+
+// Admin helper functions
+export const admin = {
+  // Check if current user is admin
+  async checkAdminStatus() {
+    return await auth.isAdmin();
+  },
+
+  // Get all articles (with pagination)
+  async getAllArticles(page = 1, limit = 10) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
+      .from("articles")
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    return { data: data || [], error, count };
+  },
+
+  // Get article by ID
+  async getArticleById(id) {
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    return { data, error };
+  },
+
+  // Create new article
+  async createArticle(articleData, userId) {
+    const { data, error } = await supabase
+      .from("articles")
+      .insert({
+        ...articleData,
+        created_by: userId,
+        updated_by: userId,
+      })
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  // Update article
+  async updateArticle(id, articleData, userId) {
+    const { data, error } = await supabase
+      .from("articles")
+      .update({
+        ...articleData,
+        updated_by: userId,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  // Delete article
+  async deleteArticle(id) {
+    // First check if article is featured
+    const { data: article } = await supabase
+      .from("articles")
+      .select("featured")
+      .eq("id", id)
+      .single();
+
+    if (article?.featured) {
+      return {
+        data: null,
+        error: {
+          message: "Cannot delete featured article. Unfeature it first.",
+        },
+      };
+    }
+
+    const { error } = await supabase.from("articles").delete().eq("id", id);
+
+    return { error };
+  },
+
+  // Set featured article (only one can be featured)
+  async setFeaturedArticle(id) {
+    const { data, error } = await supabase
+      .from("articles")
+      .update({ featured: true })
+      .eq("id", id)
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  // Unfeature article
+  async unfeatureArticle(id) {
+    const { data, error } = await supabase
+      .from("articles")
+      .update({ featured: false })
+      .eq("id", id)
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  // Get featured article
+  async getFeaturedArticle() {
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("featured", true)
+      .single();
+
+    return { data, error };
+  },
+
+  // Search articles
+  async searchArticles(query, category = null) {
+    let queryBuilder = supabase
+      .from("articles")
+      .select("*")
+      .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+      .order("created_at", { ascending: false });
+
+    if (category && category !== "All") {
+      queryBuilder = queryBuilder.eq("category", category);
+    }
+
+    const { data, error } = await queryBuilder;
+    return { data: data || [], error };
+  },
+
+  // Generate unique article ID
+  async generateArticleId() {
+    // Get the latest article to determine next ID
+    const { data, error } = await supabase
+      .from("articles")
+      .select("id")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (error || !data || data.length === 0) {
+      return "news1"; // First article
+    }
+
+    // Extract number from last ID (e.g., "news5" -> 5)
+    const lastId = data[0].id;
+    const match = lastId.match(/\d+$/);
+    const lastNum = match ? parseInt(match[0]) : 0;
+
+    return `news${lastNum + 1}`;
+  },
+
+  // Save article image record
+  async saveArticleImage(articleId, imageUrl, imageType, cloudinaryPublicId) {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+
+    const { data, error } = await supabase
+      .from("article_images")
+      .insert({
+        article_id: articleId,
+        image_url: imageUrl,
+        image_type: imageType,
+        cloudinary_public_id: cloudinaryPublicId,
+        uploaded_by: userId,
+      })
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  // Get article images
+  async getArticleImages(articleId) {
+    const { data, error } = await supabase
+      .from("article_images")
+      .select("*")
+      .eq("article_id", articleId)
+      .order("created_at", { ascending: false });
+
+    return { data: data || [], error };
+  },
+
+  // Delete article image
+  async deleteArticleImage(imageId) {
+    const { error } = await supabase
+      .from("article_images")
+      .delete()
+      .eq("id", imageId);
+
+    return { error };
+  },
+};
+
+// Cloudinary helper functions
+export const cloudinary = {
+  // Upload image to Cloudinary
+  async uploadImage(file, folder = "tcoefs-news") {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      return {
+        data: null,
+        error: { message: "Cloudinary credentials not configured" },
+      };
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+    formData.append("folder", folder);
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      return {
+        data: {
+          url: data.secure_url,
+          publicId: data.public_id,
+          width: data.width,
+          height: data.height,
+        },
+        error: null,
+      };
+    } catch (error) {
+      return {
+        data: null,
+        error: { message: error.message || "Failed to upload image" },
+      };
+    }
+  },
+
+  // Get optimized image URL
+  getOptimizedUrl(publicId, options = {}) {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const { width, height, quality = "auto", format = "auto" } = options;
+
+    let transformations = `f_${format},q_${quality}`;
+    if (width) transformations += `,w_${width}`;
+    if (height) transformations += `,h_${height}`;
+
+    return `https://res.cloudinary.com/${cloudName}/image/upload/${transformations}/${publicId}`;
+  },
+
+  // Get thumbnail URL
+  getThumbnailUrl(publicId, size = 200) {
+    return this.getOptimizedUrl(publicId, {
+      width: size,
+      height: size,
+      quality: "auto",
+      format: "auto",
+    });
   },
 };
