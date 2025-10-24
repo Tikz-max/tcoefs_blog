@@ -198,6 +198,7 @@ export const admin = {
     const { data, error, count } = await supabase
       .from("articles")
       .select("*", { count: "exact" })
+      .order("published_date", { ascending: false })
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -224,10 +225,10 @@ export const admin = {
         created_by: userId,
         updated_by: userId,
       })
-      .select()
-      .single();
+      .select();
 
-    return { data, error };
+    // Return first result or null
+    return { data: data && data.length > 0 ? data[0] : null, error };
   },
 
   // Update article
@@ -239,10 +240,10 @@ export const admin = {
         updated_by: userId,
       })
       .eq("id", id)
-      .select()
-      .single();
+      .select();
 
-    return { data, error };
+    // Return first result or null
+    return { data: data && data.length > 0 ? data[0] : null, error };
   },
 
   // Delete article

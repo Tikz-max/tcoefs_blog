@@ -28,6 +28,7 @@ const ArticleEditor = () => {
       day: "numeric",
       year: "numeric",
     }),
+    published_date: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
     read_time: "5 min read",
     featured: false,
   });
@@ -107,17 +108,57 @@ const ArticleEditor = () => {
     try {
       if (isEditMode) {
         // Update existing article
-        const { error } = await admin.updateArticle(id, formData, user.id);
-        if (error) throw error;
+        console.log("Attempting to update article:", id);
+        console.log("Form data:", formData);
+        console.log("User ID:", user.id);
+
+        const { data, error } = await admin.updateArticle(
+          id,
+          formData,
+          user.id,
+        );
+
+        console.log("Update response - data:", data);
+        console.log("Update response - error:", error);
+
+        if (error) {
+          console.error("Update error:", error);
+          throw new Error(
+            `Database error: ${error.message || error.code || "Unknown error"}. Details: ${JSON.stringify(error)}`,
+          );
+        }
+
+        if (!data) {
+          // Check if user is actually admin
+          const isAdmin = await admin.checkAdminStatus();
+          console.log("Is user admin?", isAdmin);
+
+          throw new Error(
+            `Update failed: No data returned. Admin status: ${isAdmin}. This usually means RLS policy is blocking the update.`,
+          );
+        }
+
         alert("Article updated successfully!");
+        // Reload the article to show updated data
+        await loadArticle();
       } else {
         // Generate new article ID
         const newId = await admin.generateArticleId();
         const articleData = { ...formData, id: newId };
 
         // Create new article
-        const { error } = await admin.createArticle(articleData, user.id);
-        if (error) throw error;
+        const { data, error } = await admin.createArticle(articleData, user.id);
+
+        if (error) {
+          console.error("Create error:", error);
+          throw new Error(error.message || "Failed to create article");
+        }
+
+        if (!data) {
+          throw new Error(
+            "Create returned no data - you may not have permission",
+          );
+        }
 
         // Save image record if we have image data
         if (imageData?.publicId) {
@@ -135,6 +176,7 @@ const ArticleEditor = () => {
     } catch (err) {
       console.error("Error saving article:", err);
       setError(err.message || "Failed to save article");
+      alert(`Error: ${err.message || "Failed to save article"}`);
     } finally {
       setSaving(false);
     }
@@ -269,19 +311,37 @@ const ArticleEditor = () => {
                 </select>
               </div>
 
-              {/* Date */}
+              {/* Published Date (for sorting) */}
               <div>
                 <label className="block text-sm font-semibold text-primary mb-2">
-                  Publication Date
+                  Published Date (for sorting) *
                 </label>
                 <input
-                  type="text"
-                  value={formData.date}
-                  onChange={(e) => handleChange("date", e.target.value)}
-                  placeholder="e.g., March 23, 2025"
+                  type="date"
+                  value={formData.published_date}
+                  onChange={(e) =>
+                    handleChange("published_date", e.target.value)
+                  }
                   className="w-full px-4 py-3 border border-sage-light rounded-lg focus:outline-none focus:border-accent transition-quick"
                 />
               </div>
+            </div>
+
+            {/* Display Date */}
+            <div>
+              <label className="block text-sm font-semibold text-primary mb-2">
+                Display Date (shown to readers)
+              </label>
+              <input
+                type="text"
+                value={formData.date}
+                onChange={(e) => handleChange("date", e.target.value)}
+                placeholder="e.g., March 23, 2025"
+                className="w-full px-4 py-3 border border-sage-light rounded-lg focus:outline-none focus:border-accent transition-quick"
+              />
+              <p className="text-xs text-secondary mt-1">
+                This is the human-readable date shown on the article
+              </p>
             </div>
 
             {/* Read Time */}

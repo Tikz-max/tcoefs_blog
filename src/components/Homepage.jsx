@@ -370,17 +370,17 @@ const Homepage = () => {
       <section
         className={`max-w-[1200px] mx-auto px-6 md:px-12 pt-32 md:pt-40 pb-16 md:pb-24 transition-all duration-[220ms] ${searchTerm || selectedCategory ? "opacity-0 h-0 overflow-hidden pt-0 pb-0" : "opacity-100"}`}
       >
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-16 md:gap-56 lg:gap-80">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-12 md:gap-40 lg:gap-60">
           {/* Left Side - Title */}
           <div className="flex-shrink-0">
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-normal text-primary leading-[1.05] tracking-tight">
-              TcoEFS | Blog
+              TcoEFS Blog
             </h1>
           </div>
 
           {/* Right Side - Description */}
           <div className="flex-1 md:pt-4 lg:pt-6 md:max-w-xl lg:max-w-2xl">
-            <p className="text-lg md:text-xl lg:text-2xl text-primary/80 leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-primary/80 leading-relaxed md:leading-relaxed lg:leading-loose">
               Official news and updates about TcoEFS, stay up-to-date and read
               on TcoEFS impacts and stories.
             </p>
