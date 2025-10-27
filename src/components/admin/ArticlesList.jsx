@@ -9,6 +9,7 @@ import {
   Star,
   Filter,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { admin } from "../../lib/supabase";
 
@@ -25,6 +26,14 @@ const ArticlesList = () => {
 
   useEffect(() => {
     loadArticles();
+
+    // Reload articles when tab/window regains focus
+    const handleFocus = () => {
+      loadArticles();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, []);
 
   useEffect(() => {
@@ -127,13 +136,26 @@ const ArticlesList = () => {
               {filteredArticles.length === 1 ? "article" : "articles"})
             </p>
           </div>
-          <Link
-            to="/admin/articles/new"
-            className="inline-flex items-center justify-center gap-2 bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition-quick shadow-sm hover:shadow-md font-medium whitespace-nowrap"
-          >
-            <Plus className="w-5 h-5" />
-            <span>New Article</span>
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={loadArticles}
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 border border-sage-light text-primary px-4 py-3 rounded-lg hover:bg-sage-light transition-quick font-medium whitespace-nowrap disabled:opacity-50"
+              title="Refresh articles"
+            >
+              <RefreshCw
+                className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
+              />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+            <Link
+              to="/admin/articles/new"
+              className="inline-flex items-center justify-center gap-2 bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition-quick shadow-sm hover:shadow-md font-medium whitespace-nowrap"
+            >
+              <Plus className="w-5 h-5" />
+              <span>New Article</span>
+            </Link>
+          </div>
         </div>
       </div>
 
