@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import LikeButton from "./LikeButton";
 import ShareButton from "./ShareButton";
 import CommentSection from "./CommentSection";
+import Logo from "./common/Logo";
 import UserMenu from "./auth/UserMenu";
 import AuthModal from "./auth/AuthModal";
 
@@ -81,8 +82,13 @@ const ArticleView = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-accent animate-spin mx-auto mb-4" />
-          <p className="text-primary text-lg">Loading article...</p>
+          {/* TCoEFS Logo with fade animation */}
+          <div className="mb-6 animate-fade-pulse">
+            <Logo size="xl" className="mx-auto" />
+          </div>
+          <p className="text-primary text-lg font-medium animate-fade-pulse">
+            Loading article...
+          </p>
         </div>
       </div>
     );

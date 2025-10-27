@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { admin } from "../../lib/supabase";
+import Logo from "../common/Logo";
 
 const ArticlesList = () => {
   const [articles, setArticles] = useState([]);
@@ -114,9 +115,15 @@ const ArticlesList = () => {
 
   if (loading) {
     return (
-      <div className="p-6 lg:p-8">
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          {/* TCoEFS Logo with fade animation */}
+          <div className="mb-6 animate-fade-pulse">
+            <Logo size="xl" className="mx-auto" />
+          </div>
+          <p className="text-primary text-lg font-medium animate-fade-pulse">
+            Loading articles...
+          </p>
         </div>
       </div>
     );

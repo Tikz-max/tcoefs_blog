@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { admin } from "../../lib/supabase";
+import Logo from "../common/Logo";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -85,14 +86,15 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-6 lg:p-8">
-        <div className="animate-pulse space-y-8">
-          <div className="h-8 bg-sage-light rounded w-64"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-sage-light rounded-lg"></div>
-            ))}
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          {/* TCoEFS Logo with fade animation */}
+          <div className="mb-6 animate-fade-pulse">
+            <Logo size="xl" className="mx-auto" />
           </div>
+          <p className="text-primary text-lg font-medium animate-fade-pulse">
+            Loading dashboard...
+          </p>
         </div>
       </div>
     );

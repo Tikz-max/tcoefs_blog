@@ -18,6 +18,7 @@ import { admin } from "../lib/supabase";
 import UserMenu from "./auth/UserMenu";
 import AuthModal from "./auth/AuthModal";
 import CardSocialActions from "./CardSocialActions";
+import Logo from "./common/Logo";
 import { useAuth } from "../context/AuthContext";
 
 const Homepage = () => {
@@ -180,8 +181,13 @@ const Homepage = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-accent animate-spin mx-auto mb-4" />
-          <p className="text-primary text-lg">Loading articles...</p>
+          {/* TCoEFS Logo with fade animation */}
+          <div className="mb-6 animate-fade-pulse">
+            <Logo size="xl" className="mx-auto" />
+          </div>
+          <p className="text-primary text-lg font-medium animate-fade-pulse">
+            Loading articles...
+          </p>
         </div>
       </div>
     );

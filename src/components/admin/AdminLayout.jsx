@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, FileText, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import Logo from "../common/Logo";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -164,18 +165,14 @@ const AdminLayout = ({ children }) => {
             <div className="h-20 border-b border-sage-light flex items-center justify-between px-6 flex-shrink-0 mb-6">
               {!sidebarCollapsed ? (
                 <Link to="/" className="flex items-center gap-3 flex-1">
-                  <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center shadow-sm">
-                    <span className="text-white font-bold text-lg">TC</span>
-                  </div>
+                  <Logo size="sm" />
                   <span className="font-bold text-primary text-xl">
                     TCoEFS Admin
                   </span>
                 </Link>
               ) : (
                 <div className="w-full flex justify-center">
-                  <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center shadow-sm">
-                    <span className="text-white font-bold text-lg">TC</span>
-                  </div>
+                  <Logo size="sm" />
                 </div>
               )}
               {/* Mobile close button - only visible on mobile */}

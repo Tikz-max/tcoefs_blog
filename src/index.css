@@ -413,6 +413,21 @@
         animation: slideIn 300ms ease-out;
     }
 
+    /* Loading Screen Fade Animation */
+    @keyframes fadeInOut {
+        0%,
+        100% {
+            opacity: 0.4;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .animate-fade-pulse {
+        animation: fadeInOut 2s ease-in-out infinite;
+    }
+
     /* Article Content Styling */
     .article-content h2 {
         @apply text-[32px] leading-[44px] font-bold text-primary mt-12 mb-6;
