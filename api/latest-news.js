@@ -51,16 +51,24 @@ export default async function handler(req, res) {
     }
 
     // Format response for main site consumption
-    const formattedArticles = articles.map((article) => ({
-      id: article.id,
-      title: article.title,
-      excerpt: article.excerpt,
-      category: article.category,
-      date: article.date,
-      image: article.card_image_url,
-      readTime: article.read_time,
-      url: `https://blog.tcoefs-unijos.org/news/${article.id}`,
-    }));
+    const formattedArticles = articles.map((article) => {
+      // Convert relative URLs to absolute
+      let imageUrl = article.card_image_url || "/news-collage.png";
+      if (imageUrl.startsWith("/")) {
+        imageUrl = `https://blog.tcoefs-unijos.org${imageUrl}`;
+      }
+
+      return {
+        id: article.id,
+        title: article.title,
+        excerpt: article.excerpt,
+        category: article.category,
+        date: article.date,
+        image: imageUrl,
+        readTime: article.read_time,
+        url: `https://blog.tcoefs-unijos.org/news/${article.id}`,
+      };
+    });
 
     // Return success response
     return res.status(200).json({
