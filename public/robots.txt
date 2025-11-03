@@ -1,0 +1,11 @@
+# robots.txt for TCoEFS Blog
+# Allow all search engines to crawl everything
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://blog.tcoefs-unijos.org/sitemap.xml
+
+# Crawl delay (optional, helps with server load)
+Crawl-delay: 1
