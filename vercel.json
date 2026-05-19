@@ -7,6 +7,14 @@
       "destination": "/api/:path*"
     },
     {
+      "source": "/news/:id",
+      "destination": "/api/news-page?id=:id"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/((?!api).*)",
       "destination": "/index.html"
     }

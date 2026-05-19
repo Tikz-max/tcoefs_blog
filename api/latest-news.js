@@ -2,9 +2,10 @@ import { createClient } from "@supabase/supabase-js";
 
 // Initialize Supabase client
 // Vercel serverless functions use process.env without VITE_ prefix
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const env = globalThis.process?.env || {};
+const supabaseUrl = env.VITE_SUPABASE_URL || env.SUPABASE_URL;
 const supabaseAnonKey =
-  process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+  env.VITE_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY;
 
 // Validate environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
