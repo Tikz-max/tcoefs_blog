@@ -35,13 +35,17 @@ export default async function handler(req, res) {
 
   try {
     // Fetch 3 latest articles ordered by published_date (most recent first)
-    const { data: articles, error } = await supabase
-      .from("articles")
-      .select(
-        "id, title, excerpt, category, date, card_image_url, read_time, published_date",
-      )
-      .order("published_date", { ascending: false })
-      .limit(3);
+    const columns =
+      "id, title, excerpt, category, date, card_image_url, read_time, published_date";
+    const query = (withStatus) => {
+      let q = supabase.from("articles").select(columns);
+      if (withStatus) q = q.neq("status", "draft");
+      return q.order("published_date", { ascending: false }).limit(3);
+    };
+    // Hide drafts once the editorial migration exists; before it, the status
+    // column is absent and the first query errors, so fall back to no filter.
+    let { data: articles, error } = await query(true);
+    if (error) ({ data: articles, error } = await query(false));
 
     if (error) {
       console.error("Supabase error:", error);

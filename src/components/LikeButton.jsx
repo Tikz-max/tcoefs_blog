@@ -65,36 +65,22 @@ const LikeButton = ({ postId, showCount = true, size = "default" }) => {
       <button
         onClick={handleLike}
         disabled={loading}
-        className={`${currentSize.button} flex items-center justify-center rounded-full border-2 transition-all duration-[180ms] ${
+        className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-[14px] font-semibold transition-colors disabled:opacity-60 ${
           liked
-            ? "bg-accent border-accent text-white hover:bg-accent-dark hover:border-accent-dark"
-            : "bg-white border-[#d9e8e0] text-primary/60 hover:border-accent hover:text-accent hover:bg-[#f8fbf9]"
-        } ${
-          loading
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:-translate-y-0.5 hover:shadow-md"
+            ? "border-brand-fill bg-brand-fill text-white"
+            : "border-line-strong bg-surface text-ink-2 hover:border-ink hover:text-ink"
         }`}
-        aria-label={liked ? "Unlike post" : "Like post"}
+        aria-pressed={liked}
+        aria-label={liked ? "Remove like" : "Like this story"}
       >
-        <Heart
-          size={currentSize.icon}
-          className={`transition-all duration-[180ms] ${
-            liked ? "fill-current scale-110" : ""
-          }`}
-        />
+        <Heart size={17} className={liked ? "fill-current" : ""} />
+        {liked ? "Liked" : "Like"}
+        {showCount && likeCount > 0 && <span className="tabular-nums opacity-80">{likeCount}</span>}
       </button>
 
-      {showCount && likeCount > 0 && (
-        <span className={`${currentSize.text} font-medium text-secondary`}>
-          {likeCount}
-        </span>
-      )}
-
-      {/* Login Prompt Tooltip */}
       {showLoginPrompt && (
-        <div className="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-2 bg-primary text-white text-xs rounded-lg shadow-lg whitespace-nowrap z-50 animate-fade-in">
-          Sign in to like posts
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rotate-45"></div>
+        <div role="status" className="animate-fade absolute -top-11 left-0 whitespace-nowrap rounded-md bg-ink px-3 py-2 text-[12.5px] font-medium text-paper shadow-pop">
+          Sign in to like stories
         </div>
       )}
     </div>
