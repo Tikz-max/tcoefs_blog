@@ -83,117 +83,67 @@ const CommentSection = ({ postId }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#d9e8e0] overflow-hidden">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-[#d9e8e0] flex items-center gap-2">
-        <MessageSquare size={20} className="text-primary" />
-        <h3 className="text-lg font-semibold text-primary">
-          Comments ({comments.length})
-        </h3>
-      </div>
+    <section aria-label="Comments" className="border-t-2 border-ink pt-5">
+      <h2 className="font-serif text-[26px] font-semibold tracking-tight">
+        Comments <span className="font-sans text-[15px] font-medium text-ink-3">({comments.length})</span>
+      </h2>
 
-      {/* Comment Form */}
-      <div className="px-6 py-5 border-b border-[#d9e8e0] bg-[#f8fbf9]">
-        <form onSubmit={handleSubmit} className="relative">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder={
-              user
-                ? "Share your thoughts on this article..."
-                : "Sign in to leave a comment"
-            }
-            disabled={!user || submitting}
-            rows={3}
-            className="w-full px-4 py-3 pr-12 bg-white border-2 border-[#d9e8e0] rounded-lg text-[17px] text-text placeholder:text-primary/40 focus:border-accent focus:bg-white focus:outline-none focus:ring-3 focus:ring-accent/10 transition-all duration-[180ms] resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-          />
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={!user || !newComment.trim() || submitting}
-            className="absolute bottom-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-accent hover:bg-accent-dark text-white transition-all duration-[180ms] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent"
-            aria-label="Post comment"
-          >
-            {submitting ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <Send size={18} />
-            )}
+      <form onSubmit={handleSubmit} className="mt-5">
+        <label htmlFor="comment" className="sr-only">Your comment</label>
+        <textarea
+          id="comment"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder={user ? "Add to the discussion" : "Sign in to join the discussion"}
+          disabled={!user || submitting}
+          rows={3}
+          className="field disabled:opacity-60"
+        />
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p role="status" className="text-[13px] text-ink-3">
+            {showLoginPrompt ? "Please sign in to comment." : "Be respectful and keep to the topic."}
+          </p>
+          <button type="submit" disabled={!user || !newComment.trim() || submitting} className="btn btn-primary btn-sm">
+            {submitting ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+            Post comment
           </button>
-        </form>
+        </div>
+      </form>
 
-        {/* Login Prompt */}
-        {showLoginPrompt && (
-          <div className="mt-3 px-4 py-3 bg-accent/10 border border-accent/20 rounded-lg">
-            <p className="text-sm text-accent-dark">
-              Please sign in to leave a comment
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Comments List */}
-      <div className="px-6 py-4">
+      <div className="mt-8">
         {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 size={24} className="animate-spin text-primary/40" />
-          </div>
+          <div className="flex justify-center py-8"><Loader2 size={22} className="animate-spin text-ink-3" /></div>
         ) : comments.length === 0 ? (
-          <div className="text-center py-8">
-            <MessageSquare size={48} className="mx-auto mb-3 text-primary/20" />
-            <p className="text-sm text-secondary">
-              No comments yet. Be the first to share your thoughts!
-            </p>
-          </div>
+          <p className="flex items-center gap-2.5 py-4 text-[14.5px] text-ink-3">
+            <MessageSquare size={18} /> No comments yet. Start the conversation.
+          </p>
         ) : (
-          <div className="space-y-4">
+          <ul className="divide-y divide-line">
             {comments.map((comment) => (
-              <div
-                key={comment.id}
-                className="group p-4 rounded-lg border border-[#d9e8e0] hover:border-accent/30 hover:bg-[#f8fbf9] transition-all duration-[180ms]"
-              >
-                <div className="flex items-start gap-3">
-                  {/* Avatar */}
-                  <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-medium text-sm flex-shrink-0">
-                    {getUserInitial(comment.user_name)}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-primary">
-                          {comment.user_name}
-                        </span>
-                        <span className="text-xs text-secondary">
-                          {formatDate(comment.created_at)}
-                        </span>
-                      </div>
-
-                      {/* Delete Button (only for comment owner) */}
-                      {user && user.id === comment.user_id && (
-                        <button
-                          onClick={() => handleDelete(comment.id)}
-                          className="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-red-600 transition-all duration-[180ms]"
-                          aria-label="Delete comment"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
-
-                    <p className="text-[15px] text-text leading-relaxed break-words">
-                      {comment.text}
+              <li key={comment.id} className="group flex gap-3.5 py-5 first:pt-0">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-[13px] font-semibold text-brand">
+                  {getUserInitial(comment.user_name)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[14px]">
+                      <span className="font-semibold text-ink">{comment.user_name}</span>
+                      <span className="ml-2 text-[12.5px] text-ink-3">{formatDate(comment.created_at)}</span>
                     </p>
+                    {user && user.id === comment.user_id && (
+                      <button onClick={() => handleDelete(comment.id)} className="icon-btn !h-8 !w-8 opacity-0 transition-opacity hover:!text-danger focus:opacity-100 group-hover:opacity-100" aria-label="Delete comment">
+                        <Trash2 size={15} />
+                      </button>
+                    )}
                   </div>
+                  <p className="mt-1 break-words text-[15.5px] leading-relaxed text-ink-2">{comment.text}</p>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

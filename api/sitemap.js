@@ -24,10 +24,13 @@ export default async function handler(req, res) {
     return res.end("<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>");
   }
 
-  const { data, error } = await supabase
-    .from("articles")
-    .select("id, updated_at, published_date")
-    .order("published_date", { ascending: false });
+  const query = (withStatus) => {
+    let q = supabase.from("articles").select("id, updated_at, published_date");
+    if (withStatus) q = q.neq("status", "draft");
+    return q.order("published_date", { ascending: false });
+  };
+  let { data, error } = await query(true);
+  if (error) ({ data, error } = await query(false));
 
   if (error) {
     res.status(500);

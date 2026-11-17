@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { supabase, auth, db } from "../lib/supabase";
+import { auth, db, isDemo } from "../lib/supabase";
+import { demoUser } from "../lib/demo";
 
 const AuthContext = createContext(null);
 
@@ -20,6 +21,11 @@ export const AuthProvider = ({ children }) => {
 
   // Initialize auth state
   useEffect(() => {
+    if (isDemo) {
+      setUser(demoUser);
+      setLoading(false);
+      return;
+    }
     // Get initial session
     auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -41,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 
   // Load user's liked posts and comments when user changes
   useEffect(() => {
-    if (user) {
+    if (user && !isDemo) {
       loadUserData();
     } else {
       setUserLikedPosts([]);
@@ -173,6 +179,7 @@ export const AuthProvider = ({ children }) => {
 
   // Get comments for a post
   const getPostComments = async (postId) => {
+    if (isDemo) return { success: true, data: [] };
     try {
       const { data, error } = await db.getPostComments(postId);
       if (error) throw error;
@@ -189,6 +196,7 @@ export const AuthProvider = ({ children }) => {
 
   // Get like count for a post
   const getPostLikeCount = async (postId) => {
+    if (isDemo) return { success: true, count: 0 };
     try {
       const { count, error } = await db.getPostLikeCount(postId);
       if (error) throw error;

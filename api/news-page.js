@@ -127,6 +127,66 @@ function pageHtml(article, currentUrl) {
 </html>`;
 }
 
+// Serve the real single-page app, with this story's title, description and
+// social-card tags written into <head> so crawlers and link previews see them.
+async function appShell(req, article, currentUrl) {
+  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  if (!host) return null;
+  try {
+    const response = await fetch(`https://${host}/index.html`);
+    if (!response.ok) return null;
+    let html = await response.text();
+    if (!html.includes("<div id=\"root\">")) return null;
+
+    const title = article.title || "TCoEFS Blog";
+    const description = article.excerpt || stripHtml(article.content || "");
+    const image = absoluteUrl(article.card_image_url || article.image_url);
+    const published = article.published_date || article.created_at || "";
+
+    // Drop the generic site-wide tags, then add the story's own.
+    html = html
+      .replace(/<title>[\s\S]*?<\/title>/i, "")
+      .replace(/<meta\s+(?:name|property)="(?:title|description|og:[a-z:_]+|twitter:[a-z:_]+)"[\s\S]*?\/>/gi, "")
+      .replace(/<link\s+rel="canonical"[^>]*>/i, "");
+
+    const head = `
+    <title>${escapeHtml(title)} | TCoEFS Blog</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+    <link rel="canonical" href="${escapeHtml(currentUrl)}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="${escapeHtml(currentUrl)}" />
+    <meta property="og:site_name" content="TCoEFS Blog" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:image" content="${escapeHtml(image)}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${escapeHtml(image)}" />
+    ${published ? `<meta property="article:published_time" content="${escapeHtml(published)}" />` : ""}
+    ${article.category ? `<meta property="article:section" content="${escapeHtml(article.category)}" />` : ""}
+    <script type="application/ld+json">${JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: title,
+      description,
+      image,
+      url: currentUrl,
+      datePublished: published || undefined,
+      author: { "@type": "Organization", name: article.author || "TCoEFS" },
+      publisher: { "@type": "Organization", name: "TCoEFS", logo: { "@type": "ImageObject", url: `${siteUrl}/tcoefs-logo.png` } },
+    }).replace(/</g, "\\u003c")}</script>
+    `;
+    html = html.replace("</head>", `${head}</head>`);
+
+    // Readable fallback for crawlers and no-JavaScript clients.
+    const fallbackBody = `<noscript><article><h1>${escapeHtml(title)}</h1><p>${escapeHtml(description)}</p>${article.content || ""}</article></noscript>`;
+    return html.replace("<div id=\"root\"></div>", `<div id="root"></div>${fallbackBody}`);
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   const articleId = req.query.id;
 
@@ -158,11 +218,18 @@ export default async function handler(req, res) {
     (item) => String(item.id) === String(articleId) || item.slug === articleId,
   );
 
+  if (data?.status === "draft") {
+    res.status(404);
+    return res.end(`<!doctype html><html><head><meta name="robots" content="noindex, nofollow"><title>Article not found</title></head><body><h1>Article not found</h1></body></html>`);
+  }
+
   if (!data && !fallback) {
     res.status(404);
     return res.end(`<!doctype html><html><head><meta name="robots" content="noindex, nofollow"><title>Article not found</title></head><body><h1>Article not found</h1></body></html>`);
   }
 
   const currentUrl = `${siteUrl}/news/${encodeURIComponent(articleId)}`;
-  return res.status(200).end(pageHtml(data || mapFallbackArticle(fallback), currentUrl));
+  const article = data || mapFallbackArticle(fallback);
+  const shell = await appShell(req, article, currentUrl);
+  return res.status(200).end(shell || pageHtml(article, currentUrl));
 }

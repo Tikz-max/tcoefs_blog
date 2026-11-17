@@ -11,6 +11,10 @@
       "destination": "/api/news-page?id=:id"
     },
     {
+      "source": "/rss.xml",
+      "destination": "/api/rss"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },

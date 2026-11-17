@@ -2,9 +2,16 @@ import { createClient } from "@supabase/supabase-js";
 
 // Supabase configuration
 // Replace these with your actual Supabase project credentials
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "YOUR_SUPABASE_URL";
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || "YOUR_SUPABASE_ANON_KEY";
+const envUrl = import.meta.env.VITE_SUPABASE_URL;
+const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// True when real credentials are present. Without them the app falls back to
+// bundled sample content in local development (see src/lib/demo.js).
+export const isConfigured = /^https?:\/\//.test(envUrl || "") && !!envKey;
+export const isDemo = import.meta.env.DEV && !isConfigured;
+
+const supabaseUrl = isConfigured ? envUrl : "https://placeholder.supabase.co";
+const supabaseAnonKey = isConfigured ? envKey : "placeholder-anon-key";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -74,6 +81,7 @@ export const auth = {
   // Check if user is admin
   async isAdmin() {
     const { data, error } = await supabase.auth.getUser();
+    if (isDemo) return true;
     if (error || !data.user) return false;
     return data.user.user_metadata?.role === "admin";
   },
@@ -390,6 +398,16 @@ export const cloudinary = {
   async uploadImage(file, folder = "tcoefs-news") {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    // Local preview without credentials: keep the image in the browser.
+    if (isDemo && (!cloudName || !uploadPreset)) {
+      const url = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+      return { data: { url, publicId: null }, error: null };
+    }
 
     if (!cloudName || !uploadPreset) {
       return {
