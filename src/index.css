@@ -5,83 +5,106 @@
    Tokens are CSS variables so the dark theme only has to redefine values.
    ========================================================================== */
 
+/* ==========================================================================
+   TCoEFS Blog design system
+   Generated with the installed ui-ux-pro-max skill (see design-system/):
+   style   Swiss Modernism 2.0: 12-column grid, rational spacing, hairline rules
+   colour  "Agriculture / Farm Tech": earth green with harvest gold
+   type    "Academic / Research": Crimson Pro headlines, Atkinson Hyperlegible body
+   ========================================================================== */
+
 @theme {
     --font-sans:
-        "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-        sans-serif;
-    --font-serif:
-        "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+        "Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system,
+        "Segoe UI", Roboto, sans-serif;
+    --font-serif: "Crimson Pro", "Iowan Old Style", Georgia, serif;
 
-    /* Surfaces */
-    --color-paper: #fbfaf6;
-    --color-surface: #ffffff;
-    --color-muted: #f3f1ea;
-    --color-line: #e3e1d8;
-    --color-line-strong: #cfcdc2;
+    --color-paper: var(--c-bg);
+    --color-surface: var(--c-card);
+    --color-muted: var(--c-muted);
+    --color-line: var(--c-border);
+    --color-line-strong: var(--c-border-strong);
 
-    /* Text */
-    --color-ink: #14201a;
-    --color-ink-2: #46534c;
-    --color-ink-3: #6b7670;
+    --color-ink: var(--c-fg);
+    --color-ink-2: var(--c-fg-2);
+    --color-ink-3: var(--c-fg-3);
 
-    /* Brand */
-    --color-brand: #1d5a38;
-    --color-brand-strong: #123524;
-    --color-brand-soft: #e6f0e9;
-    --color-brand-fill: #1d5a38;
-    --color-brand-fill-hover: #154429;
-    --color-band: #10291c;
-    --color-gold: #a86a12;
-    --color-gold-soft: #f7edd8;
-    --color-danger: #b3261e;
-    --color-danger-soft: #fbeae8;
+    --color-brand: var(--c-primary);
+    --color-brand-strong: var(--c-primary-strong);
+    --color-brand-soft: var(--c-primary-soft);
+    --color-brand-fill: var(--c-cta);
+    --color-brand-fill-hover: var(--c-cta-hover);
+    --color-band: var(--c-band);
+    --color-gold: var(--c-accent);
+    --color-gold-soft: var(--c-accent-soft);
+    --color-danger: var(--c-danger);
+    --color-danger-soft: var(--c-danger-soft);
 
-    /* Category accents */
-    --color-cat-news: #1d5a38;
-    --color-cat-research: #1f4e79;
-    --color-cat-training: #94590b;
-    --color-cat-partnership: #a2422a;
+    --color-cat-news: var(--c-cat-news);
+    --color-cat-research: var(--c-cat-research);
+    --color-cat-training: var(--c-cat-training);
+    --color-cat-partnership: var(--c-cat-partnership);
 
-    /* Legacy aliases used by older markup */
-    --color-text: var(--color-ink);
-    --color-background: var(--color-paper);
-    --color-primary: var(--color-ink);
-    --color-secondary: var(--color-ink-2);
-    --color-accent: var(--color-brand-fill);
-    --color-accent-dark: var(--color-brand-fill-hover);
-    --color-sage-light: var(--color-line);
-    --color-sage-medium: var(--color-line-strong);
+    --shadow-card: 0 1px 2px rgb(20 83 45 / 0.05), 0 8px 24px rgb(20 83 45 / 0.07);
+    --shadow-pop: 0 4px 12px rgb(20 83 45 / 0.1), 0 20px 48px rgb(20 83 45 / 0.16);
+}
 
-    --shadow-card: 0 1px 2px rgb(20 32 26 / 0.04), 0 8px 24px rgb(20 32 26 / 0.06);
-    --shadow-pop: 0 4px 12px rgb(20 32 26 / 0.08), 0 20px 48px rgb(20 32 26 / 0.14);
+:root {
+    --c-bg: #f0fdf4;
+    --c-card: #ffffff;
+    --c-muted: #e8f0f1;
+    --c-border: #cfe9d9;
+    --c-border-strong: #9fc9b0;
+
+    --c-fg: #14532d;
+    --c-fg-2: #3f4f5f;
+    --c-fg-3: #566474;
+
+    --c-primary: #15803d;
+    --c-primary-strong: #166534;
+    --c-primary-soft: #dcfce7;
+    --c-cta: #a16207;
+    --c-cta-hover: #854d0e;
+    --c-on-cta: #ffffff;
+    --c-accent: #a16207;
+    --c-accent-soft: #fef3c7;
+    --c-band: #14532d;
+    --c-danger: #b3261e;
+    --c-danger-soft: #fbeae8;
+
+    --c-cat-news: #15803d;
+    --c-cat-research: #1e40af;
+    --c-cat-training: #a16207;
+    --c-cat-partnership: #9a3412;
 }
 
 :root[data-theme="dark"] {
-    --color-paper: #0d1411;
-    --color-surface: #141d18;
-    --color-muted: #1a2520;
-    --color-line: #25322b;
-    --color-line-strong: #34443b;
+    --c-bg: #08170f;
+    --c-card: #0f2417;
+    --c-muted: #152c1e;
+    --c-border: #1f3d2b;
+    --c-border-strong: #2f5a41;
 
-    --color-ink: #eceee8;
-    --color-ink-2: #b7c0b9;
-    --color-ink-3: #8c9790;
+    --c-fg: #e8f5ec;
+    --c-fg-2: #b4c6ba;
+    --c-fg-3: #8aa093;
 
-    --color-brand: #86cda0;
-    --color-brand-strong: #aee0c0;
-    --color-brand-soft: #18281f;
-    --color-brand-fill: #2a7349;
-    --color-brand-fill-hover: #338556;
-    --color-band: #0a110d;
-    --color-gold: #e2b65f;
-    --color-gold-soft: #2a2314;
-    --color-danger: #f2877f;
-    --color-danger-soft: #331a18;
+    --c-primary: #4ade80;
+    --c-primary-strong: #86efac;
+    --c-primary-soft: #11291a;
+    --c-cta: #fbbf24;
+    --c-cta-hover: #fcd34d;
+    --c-on-cta: #1a1203;
+    --c-accent: #fbbf24;
+    --c-accent-soft: #2b2208;
+    --c-band: #040d08;
+    --c-danger: #f2877f;
+    --c-danger-soft: #331a18;
 
-    --color-cat-news: #86cda0;
-    --color-cat-research: #8dbbe6;
-    --color-cat-training: #e2b65f;
-    --color-cat-partnership: #eb9a82;
+    --c-cat-news: #4ade80;
+    --c-cat-research: #93b4ff;
+    --c-cat-training: #fbbf24;
+    --c-cat-partnership: #f4a582;
 
     color-scheme: dark;
 }
@@ -97,13 +120,14 @@
         background: var(--color-paper);
         color: var(--color-ink);
         font-family: var(--font-sans);
+        line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
     }
 
     ::selection {
-        background: color-mix(in srgb, var(--color-brand-fill) 28%, transparent);
+        background: color-mix(in srgb, var(--color-brand) 28%, transparent);
     }
 
     :focus-visible {
@@ -221,7 +245,7 @@
     }
     .btn-primary {
         background: var(--color-brand-fill);
-        color: #fff;
+        color: var(--c-on-cta);
     }
     .btn-primary:hover:not(:disabled) {
         background: var(--color-brand-fill-hover);
@@ -255,8 +279,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 38px;
-        height: 38px;
+        width: 44px;
+        height: 44px;
         border-radius: 999px;
         color: var(--color-ink-2);
         transition:
@@ -346,15 +370,15 @@
        admin editor so that what is written is exactly what is published.
        ---------------------------------------------------------------------- */
     .prose-article {
-        font-family: var(--font-serif);
-        font-size: 19px;
-        line-height: 1.68;
+        font-family: var(--font-sans);
+        font-size: 18px;
+        line-height: 1.75;
         color: var(--color-ink);
         overflow-wrap: break-word;
     }
     @media (min-width: 768px) {
         .prose-article {
-            font-size: 20.5px;
+            font-size: 19.5px;
         }
     }
 
@@ -365,8 +389,8 @@
         margin-bottom: 0;
     }
     .prose-article p.lead {
-        font-size: 1.16em;
-        line-height: 1.55;
+        font-size: 1.14em;
+        line-height: 1.6;
         color: var(--color-ink-2);
     }
 
@@ -382,14 +406,14 @@
     }
     .prose-article h1,
     .prose-article h2 {
-        font-size: 1.62em;
-        line-height: 1.2;
+        font-size: 1.85em;
+        line-height: 1.15;
         font-weight: 600;
         margin-top: 1.9em;
     }
     .prose-article h3 {
-        font-size: 1.28em;
-        line-height: 1.28;
+        font-size: 1.45em;
+        line-height: 1.22;
         font-weight: 600;
         margin-top: 1.7em;
     }
@@ -486,8 +510,9 @@
         border-top: 2px solid var(--color-ink);
         border-bottom: 1px solid var(--color-line-strong);
         font-style: normal;
-        font-size: 1.42em;
-        line-height: 1.3;
+        font-family: var(--font-serif);
+        font-size: 1.7em;
+        line-height: 1.25;
         font-weight: 500;
         letter-spacing: -0.012em;
         color: var(--color-ink);

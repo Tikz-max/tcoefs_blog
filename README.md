@@ -22,6 +22,11 @@ Drafts, authors, tags and image captions need the columns in
 before and after it: until it is applied, the editor hides those fields and every save publishes.
 Read the policy note at the bottom of the file so that drafts are also hidden at the database level.
 
+## Design
+
+The visual system is documented in `design-system/tcoefs-blog/MASTER.md` and was generated with the
+`ui-ux-pro-max` skill, which is installed in `.claude/skills/ui-ux-pro-max` for Claude Code.
+
 ## Structure
 
 - `src/pages` public pages (front page and topic or search archive, story reader)

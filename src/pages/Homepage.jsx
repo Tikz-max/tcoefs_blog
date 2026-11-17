@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, SearchX } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Search, SearchX } from "lucide-react";
 import SiteHeader from "../components/site/SiteHeader";
 import SiteFooter from "../components/site/SiteFooter";
 import Cover from "../components/site/Cover";
@@ -242,44 +242,98 @@ const Homepage = () => {
       ) : (
         /* ----------------------------- Front page ---------------------------- */
         <main>
-          <section className="container-page pt-8 md:pt-12">
-            <div className="grid gap-x-12 gap-y-10 lg:grid-cols-12">
-              {/* Lead story */}
-              <article className="group lg:col-span-8">
+          {/* Masthead */}
+          <section className="bg-band text-white">
+            <div className="container-page grid gap-x-12 gap-y-9 pb-32 pt-14 md:pt-20 lg:grid-cols-12">
+              <div className="lg:col-span-8">
+                <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-white/70">
+                  TCoEFS Blog
+                </p>
+                <h1 className="headline mt-5 max-w-[16ch] text-[46px] leading-[1.02] text-white md:text-[76px]">
+                  Evidence and stories for a food-secure Africa
+                </h1>
+              </div>
+              <div className="lg:col-span-4 lg:pt-10">
+                <p className="text-[18px] leading-[1.6] text-white/85">
+                  Research, training and partnership updates from the {ORG_NAME},
+                  University of Jos.
+                </p>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const q = new FormData(e.currentTarget).get("q")?.toString().trim();
+                    if (q) setParams({ q });
+                  }}
+                  className="mt-6 flex items-center gap-2 rounded-md bg-white p-1.5 pl-4"
+                  role="search"
+                >
+                  <Search size={18} className="shrink-0 text-ink-3" aria-hidden="true" />
+                  <input
+                    name="q"
+                    placeholder="Search stories"
+                    aria-label="Search stories"
+                    className="h-10 w-full bg-transparent text-[16px] text-[#14532d] outline-none placeholder:text-[#566474]"
+                  />
+                  <button type="submit" className="btn btn-primary btn-sm shrink-0">Search</button>
+                </form>
+              </div>
+
+              <ul className="flex flex-wrap gap-2.5 lg:col-span-12" aria-label="Browse by topic">
+                {CATEGORIES.map((c) => (
+                  <li key={c.slug}>
+                    <Link
+                      to={`/?topic=${c.slug}`}
+                      className="inline-flex min-h-[44px] items-center gap-2.5 rounded-md border border-white/30 px-4 text-[15px] font-bold text-white transition-colors hover:bg-white/10"
+                    >
+                      {c.name}
+                      <span className="text-[13px] font-normal tabular-nums text-white/65">
+                        {counts[c.slug] || 0}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/* Lead story overlaps the masthead */}
+          <section className="container-page -mt-24 md:-mt-28">
+            <div className="grid gap-6 lg:grid-cols-12">
+              <article className="group overflow-hidden rounded-md border border-line bg-surface shadow-[var(--shadow-card)] lg:col-span-8">
                 <Link to={`/news/${lead.id}`} className="block">
-                  <Cover src={lead.card_image_url} alt="" ratio="16 / 9" eager />
-                  <div className="pt-6">
+                  <Cover src={lead.card_image_url} alt="" ratio="16 / 9" eager rounded="rounded-none" />
+                  <div className="p-6 md:p-9">
                     <div className="flex items-center gap-3">
                       <Kicker category={lead.category} />
                       {lead.featured && (
-                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.12em] text-gold">
+                        <span className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-gold">
                           Featured
                         </span>
                       )}
                     </div>
-                    <h1 className="headline mt-3 text-[34px] leading-[1.08] md:text-[48px]">
+                    <h2 className="headline mt-3 text-[32px] leading-[1.08] md:text-[46px]">
                       <span className="headline-link">{lead.title}</span>
-                    </h1>
+                    </h2>
                     {lead.excerpt && (
-                      <p className="mt-4 max-w-[62ch] font-serif text-[19px] leading-[1.5] text-ink-2 line-clamp-3 md:text-[21px]">
+                      <p className="mt-4 max-w-[62ch] text-[17px] leading-[1.6] text-ink-2 line-clamp-3 md:text-[18px]">
                         {lead.excerpt}
                       </p>
                     )}
-                    <Meta article={lead} className="mt-4" />
+                    <Meta article={lead} className="mt-5" />
                   </div>
                 </Link>
               </article>
 
-              {/* Latest rail */}
-              <aside className="lg:col-span-4" aria-label="Latest stories">
-                <div className="border-t-2 border-ink pt-3.5">
-                  <h2 className="text-[12px] font-bold uppercase tracking-[0.14em] text-ink">
-                    Latest
-                  </h2>
-                </div>
-                <div className="mt-5 divide-y divide-line">
+              <aside
+                className="rounded-md border border-line bg-surface p-6 shadow-[var(--shadow-card)] lg:col-span-4"
+                aria-label="Latest stories"
+              >
+                <h2 className="border-b-2 border-ink pb-3 text-[12.5px] font-bold uppercase tracking-[0.14em] text-ink">
+                  Latest
+                </h2>
+                <div className="divide-y divide-line">
                   {rail.map((a) => (
-                    <div key={a.id} className="py-5 first:pt-0">
+                    <div key={a.id} className="py-5 last:pb-0">
                       <ArticleRow article={a} />
                     </div>
                   ))}
