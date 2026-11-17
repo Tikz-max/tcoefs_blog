@@ -2,21 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
+// Note: do not add manualChunks for react or other vendors. Splitting React
+// into its own chunk breaks it at runtime in the production build. Route-level
+// lazy imports in src/App.jsx already keep the editor out of the reader bundle.
 export default defineConfig({
   plugins: [react()],
-  build: {
-    rollupOptions: {
-      output: {
-        // Stable vendor chunks cache well between deployments.
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("@tiptap") || id.includes("prosemirror")) return "editor";
-            if (id.includes("@supabase")) return "supabase";
-            if (id.includes("react-router") || id.includes("react-dom") || id.includes("/react/")) return "react";
-          }
-          return undefined;
-        },
-      },
-    },
-  },
 });
