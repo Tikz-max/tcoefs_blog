@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, Copy, Link2, Mail, Printer, Quote } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Copy, Link2, Mail, Printer, Quote, Share2 } from "lucide-react";
 import SiteHeader from "../components/site/SiteHeader";
 import SiteFooter from "../components/site/SiteFooter";
 import { ArticleCard } from "../components/site/ArticleCard";
@@ -15,6 +15,9 @@ import {
   WhatsAppIcon,
   XIcon,
 } from "../components/site/ShareIcons";
+import Lightbox from "../components/site/Lightbox";
+import BackToTop from "../components/site/BackToTop";
+import Reveal from "../components/site/Reveal";
 import LikeButton from "../components/LikeButton";
 import CommentSection from "../components/CommentSection";
 import { articlesApi } from "../lib/articles";
@@ -115,6 +118,16 @@ const ShareBar = ({ article, vertical = false }) => {
       >
         {copied ? <Check size={17} /> : <Link2 size={17} />}
       </button>
+      {typeof navigator !== "undefined" && navigator.share && (
+        <button
+          onClick={() => navigator.share({ title: article.title, url: articleUrl(article.id) }).catch(() => {})}
+          className={`${item} lg:hidden`}
+          aria-label="Share using your device"
+          title="Share"
+        >
+          <Share2 size={17} />
+        </button>
+      )}
       <button onClick={() => window.print()} className={item} aria-label="Print" title="Print">
         <Printer size={17} />
       </button>
@@ -204,6 +217,8 @@ const ArticleView = () => {
   const [all, setAll] = useState([]);
   const [state, setState] = useState("loading"); // loading | ready | missing
   const bodyRef = useRef(null);
+  const [lightbox, setLightbox] = useState(null);
+  const [anchorCopied, setAnchorCopied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -239,6 +254,37 @@ const ArticleView = () => {
     [article, all],
   );
 
+  const position = article ? all.findIndex((a) => a.id === article.id) : -1;
+  const newer = position > 0 ? all[position - 1] : null;
+  const older = position >= 0 && position < all.length - 1 ? all[position + 1] : null;
+
+  const onBodyClick = (e) => {
+    const anchor = e.target.closest?.(".heading-anchor");
+    if (anchor) {
+      e.preventDefault();
+      const id = anchor.getAttribute("href").slice(1);
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.replaceState(null, "", `#${id}`);
+      navigator.clipboard?.writeText(`${articleUrl(article.id)}#${id}`).then(() => {
+        setAnchorCopied(true);
+        setTimeout(() => setAnchorCopied(false), 2000);
+      }).catch(() => {});
+      return;
+    }
+    const img = e.target.closest?.("img");
+    if (img && bodyRef.current?.contains(img)) {
+      const imgs = [...bodyRef.current.querySelectorAll(".prose-article img")];
+      setLightbox({
+        index: Math.max(0, imgs.indexOf(img)),
+        items: imgs.map((el) => ({
+          src: el.currentSrc || el.src,
+          alt: el.alt || "",
+          caption: el.closest("figure")?.querySelector("figcaption")?.textContent || el.alt || "",
+        })),
+      });
+    }
+  };
+
   if (state === "loading") {
     return (
       <div className="min-h-screen bg-paper">
@@ -252,7 +298,7 @@ const ArticleView = () => {
     return (
       <div className="min-h-screen bg-paper">
         <SiteHeader />
-        <main className="container-page py-28 text-center">
+        <main id="main" tabIndex={-1} className="container-page py-28 text-center focus:outline-none">
           <p className="kicker">Page not found</p>
           <h1 className="headline mt-4 text-4xl md:text-5xl">
             This story is not available
@@ -279,7 +325,7 @@ const ArticleView = () => {
       <ReadingProgress targetRef={bodyRef} />
       <SiteHeader />
 
-      <main className="container-page pt-8 md:pt-12">
+      <main id="main" tabIndex={-1} className="reader container-page pt-8 focus:outline-none md:pt-12">
         <article className="grid gap-x-10 lg:grid-cols-[52px_minmax(0,720px)_minmax(0,1fr)]">
           <div className="lg:col-start-2">
             <ArticleHeader article={article} />
@@ -300,7 +346,7 @@ const ArticleView = () => {
             </div>
           </aside>
 
-          <div ref={bodyRef} className="min-w-0 pt-9 lg:col-start-2 lg:row-start-3 lg:pt-12">
+          <div ref={bodyRef} onClick={onBodyClick} className="min-w-0 pt-9 lg:col-start-2 lg:row-start-3 lg:pt-12">
             <ArticleBody html={prepared.html} fallback={article.excerpt} />
 
             {gallery.length > 0 && (
@@ -356,6 +402,23 @@ const ArticleView = () => {
           </aside>
         </article>
 
+        {(newer || older) && (
+          <Reveal as="nav" aria-label="More from the Centre" className="no-print mt-20 grid gap-4 md:grid-cols-2">
+            {older ? (
+              <Link to={`/news/${older.id}`} className="group rounded-md border border-line bg-surface p-6 transition-shadow hover:shadow-[var(--shadow-card)]">
+                <p className="nudge flex items-center gap-2 text-[12.5px] font-bold uppercase tracking-[0.12em] text-ink-3"><ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" /> Previous story</p>
+                <p className="headline mt-3 line-clamp-2 text-[24px] leading-[1.15]">{older.title}</p>
+              </Link>
+            ) : <span />}
+            {newer && (
+              <Link to={`/news/${newer.id}`} className="group rounded-md border border-line bg-surface p-6 text-left transition-shadow hover:shadow-[var(--shadow-card)] md:text-right">
+                <p className="nudge flex items-center gap-2 text-[12.5px] font-bold uppercase tracking-[0.12em] text-ink-3 md:justify-end">Next story <ArrowRight size={14} /></p>
+                <p className="headline mt-3 line-clamp-2 text-[24px] leading-[1.15]">{newer.title}</p>
+              </Link>
+            )}
+          </Reveal>
+        )}
+
         {related.length > 0 && (
           <section className="no-print pt-20 md:pt-24" aria-label="Related stories">
             <div className="section-rule">
@@ -367,8 +430,10 @@ const ArticleView = () => {
               </Link>
             </div>
             <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((a) => (
-                <ArticleCard key={a.id} article={a} showExcerpt={false} />
+              {related.map((a, i) => (
+                <Reveal key={a.id} index={i}>
+                  <ArticleCard article={a} showExcerpt={false} />
+                </Reveal>
               ))}
             </div>
           </section>
@@ -376,6 +441,20 @@ const ArticleView = () => {
       </main>
 
       <SiteFooter />
+      <BackToTop />
+      {anchorCopied && (
+        <div role="status" className="animate-fade-in fixed bottom-20 left-1/2 z-[140] -translate-x-1/2 rounded-md bg-ink px-4 py-2.5 text-[14px] font-bold text-paper shadow-[var(--shadow-pop)]">
+          Section link copied
+        </div>
+      )}
+      {lightbox && (
+        <Lightbox
+          items={lightbox.items}
+          index={lightbox.index}
+          onClose={() => setLightbox(null)}
+          onIndex={(i) => setLightbox((l) => ({ ...l, index: i }))}
+        />
+      )}
     </div>
   );
 };

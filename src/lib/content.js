@@ -231,6 +231,13 @@ export const prepareArticleHtml = (html = "") => {
     used.add(id);
     el.id = id;
     headings.push({ id, text, level: el.tagName === "H2" ? 2 : 3 });
+    // Deep link to this section, revealed on hover or keyboard focus.
+    const anchor = doc.createElement("a");
+    anchor.className = "heading-anchor";
+    anchor.href = `#${id}`;
+    anchor.setAttribute("aria-label", `Link to section: ${text}`);
+    anchor.textContent = "#";
+    el.appendChild(anchor);
   });
 
   // Wide tables scroll inside their own container on small screens.

@@ -46,6 +46,20 @@ All text pairs were checked at 4.5:1 or better in both themes.
 - Motion is subtle (150 to 300ms) and removed under `prefers-reduced-motion`.
 - Icons are Lucide SVGs, never emoji.
 
+## Motion (skill query: `scroll reveal stagger`, domain `gsap`, subtle tier)
+
+- Scroll reveal: 14px lift and fade, 420ms, staggered 70ms (`Reveal` component, CSS only, no GSAP dependency).
+- Content is visible without JavaScript, and under `prefers-reduced-motion` everything renders in place.
+- Page enter: 360ms fade with 6px rise. Masthead contour art drifts once every 240s (off under reduced motion).
+- Interactive arrows nudge 3px on hover. Header gains a soft shadow after scrolling.
+- Fixed overlays must never sit inside an element with an active transform animation (use `backwards` fill only).
+
+## Interaction patterns
+
+- Search palette: Ctrl or Cmd + K, or "/". Combobox semantics, arrow keys, focus returns on close.
+- Story pages: section anchors, image lightbox with captions, previous and next story, native share on mobile, back to top.
+- Skip link first in tab order; `scroll-padding-top` keeps the sticky header from covering focused content.
+
 ## Avoid
 
 Low hierarchy, cluttered visuals, more than one primary action per view, placeholder-only

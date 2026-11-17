@@ -16,6 +16,7 @@
         <!-- Apply the saved colour theme before first paint -->
         <script>
             (function () {
+                document.documentElement.classList.add("js");
                 try {
                     var saved = localStorage.getItem("tcoefs-theme");
                     if (!saved && localStorage.getItem("darkMode") === "true") saved = "dark";
@@ -43,6 +44,7 @@
         />
         <meta name="author" content="TCoEFS - University of Jos" />
         <meta name="robots" content="index, follow" />
+        <link rel="alternate" type="application/rss+xml" title="TCoEFS Blog" href="/rss.xml" />
         <link rel="canonical" href="https://blog.tcoefs-unijos.org" />
 
         <!-- Open Graph / Facebook -->

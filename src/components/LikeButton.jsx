@@ -2,21 +2,12 @@ import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const LikeButton = ({ postId, showCount = true, size = "default" }) => {
+const LikeButton = ({ postId, showCount = true }) => {
   const { user, toggleLike, isPostLiked, getPostLikeCount } = useAuth();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-
-  // Size variants
-  const sizes = {
-    small: { icon: 16, button: "w-8 h-8", text: "text-xs" },
-    default: { icon: 20, button: "w-10 h-10", text: "text-sm" },
-    large: { icon: 24, button: "w-12 h-12", text: "text-base" },
-  };
-
-  const currentSize = sizes[size] || sizes.default;
 
   // Load initial state
   useEffect(() => {

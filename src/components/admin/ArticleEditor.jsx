@@ -318,6 +318,20 @@ const ArticleEditor = () => {
     }
   };
 
+  // Ctrl or Cmd + S saves: drafts stay drafts, live stories stay live.
+  const shortcutSave = useRef(null);
+  shortcutSave.current = () => save(editorial && form.status !== "published" ? "draft" : "published");
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        shortcutSave.current?.();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -355,7 +369,7 @@ const ArticleEditor = () => {
           </a>
         )}
         {editorial && (
-          <button onClick={() => save("draft")} disabled={saving} className="btn btn-secondary btn-sm">
+          <button onClick={() => save("draft")} disabled={saving} title="Ctrl or Cmd + S" className="btn btn-secondary btn-sm">
             {live ? "Unpublish" : "Save draft"}
           </button>
         )}

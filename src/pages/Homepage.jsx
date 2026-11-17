@@ -4,6 +4,9 @@ import { ArrowRight, ArrowUpRight, Search, SearchX } from "lucide-react";
 import SiteHeader from "../components/site/SiteHeader";
 import SiteFooter from "../components/site/SiteFooter";
 import Cover from "../components/site/Cover";
+import Reveal from "../components/site/Reveal";
+import ContourArt from "../components/site/ContourArt";
+import { useCountUp } from "../hooks/useCountUp";
 import {
   ArticleCard,
   ArticleListItem,
@@ -24,6 +27,19 @@ import {
 import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 const PAGE_SIZE = 9;
+
+const Stat = ({ value, label, animate = true }) => {
+  const [ref, counted] = useCountUp(value);
+  const n = animate ? counted : value;
+  return (
+    <div>
+      <p ref={ref} className="font-serif text-[40px] font-semibold leading-none tabular-nums text-white md:text-[52px]">
+        {n}
+      </p>
+      <p className="mt-2 text-[13px] font-bold uppercase tracking-[0.12em] text-white/65">{label}</p>
+    </div>
+  );
+};
 
 const HomeSkeleton = () => (
   <div className="container-page pt-10" aria-busy="true" aria-label="Loading stories">
@@ -65,6 +81,7 @@ const Homepage = () => {
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const [sort, setSort] = useState("newest");
 
   const topic = findCategory(params.get("topic") || "");
   const query = (params.get("q") || "").trim();
@@ -107,7 +124,8 @@ const Homepage = () => {
   const results = useMemo(() => {
     if (!filtering) return [];
     const q = query.toLowerCase();
-    return articles.filter((a) => {
+    const list = sort === "oldest" ? [...articles].reverse() : articles;
+    return list.filter((a) => {
       if (topic && categorySlug(a.category) !== topic.slug) return false;
       if (tag && !normaliseTags(a.tags).some((t) => t.toLowerCase() === tag.toLowerCase()))
         return false;
@@ -116,7 +134,7 @@ const Homepage = () => {
         .filter(Boolean)
         .some((field) => field.toLowerCase().includes(q));
     });
-  }, [articles, filtering, topic, query, tag]);
+  }, [articles, filtering, topic, query, tag, sort]);
 
   const lead = articles.find((a) => a.featured) || articles[0];
   const rest = articles.filter((a) => a.id !== lead?.id);
@@ -141,7 +159,7 @@ const Homepage = () => {
         </div>
       ) : filtering ? (
         /* ------------------------------ Archive ------------------------------ */
-        <main className="container-page pb-8 pt-10 md:pt-14">
+        <main id="main" tabIndex={-1} className="container-page pb-8 pt-10 focus:outline-none md:pt-14">
           <nav className="meta flex items-center gap-2" aria-label="Breadcrumb">
             <Link to="/" className="hover:text-ink hover:underline">
               Blog
@@ -171,10 +189,17 @@ const Homepage = () => {
               </span>
               {query && topic && <span className="chip">{topic.name}</span>}
               {(query || tag) && (
-                <button onClick={() => setParams({})} className="chip hover:bg-muted">
+                <button onClick={() => setParams({})} className="chip min-h-[44px] hover:bg-muted">
                   Clear
                 </button>
               )}
+              <label className="ml-auto flex items-center gap-2 text-[14px] text-ink-3">
+                Sort
+                <select value={sort} onChange={(e) => setSort(e.target.value)} className="field !h-11 !w-auto !py-0 pr-9">
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                </select>
+              </label>
             </div>
           </header>
 
@@ -193,9 +218,13 @@ const Homepage = () => {
                 </div>
               ) : (
                 <>
-                  {results.slice(0, visible).map((a) => (
-                    <ArticleListItem key={a.id} article={a} />
-                  ))}
+                  <div className="space-y-5">
+                    {results.slice(0, visible).map((a, i) => (
+                      <Reveal key={a.id} index={i % 3}>
+                        <ArticleListItem article={a} />
+                      </Reveal>
+                    ))}
+                  </div>
                   {results.length > visible && (
                     <div className="pt-9 text-center">
                       <button
@@ -241,16 +270,17 @@ const Homepage = () => {
         </div>
       ) : (
         /* ----------------------------- Front page ---------------------------- */
-        <main>
+        <main id="main" tabIndex={-1} className="focus:outline-none">
           {/* Masthead */}
-          <section className="bg-band text-white">
-            <div className="container-page grid gap-x-12 gap-y-9 pb-32 pt-14 md:pt-20 lg:grid-cols-12">
+          <section className="relative overflow-hidden bg-band text-white">
+            <ContourArt className="pointer-events-none absolute inset-0 h-full w-full text-white/[0.09]" />
+            <div className="container-page relative grid gap-x-12 gap-y-9 pb-36 pt-14 md:pb-40 md:pt-20 lg:grid-cols-12">
               <div className="lg:col-span-8">
-                <p className="text-[12.5px] font-bold uppercase tracking-[0.14em] text-white/70">
+                <p className="page-enter text-[12.5px] font-bold uppercase tracking-[0.14em] text-white/70">
                   TCoEFS Blog
                 </p>
-                <h1 className="headline mt-5 max-w-[16ch] text-[46px] leading-[1.02] text-white md:text-[76px]">
-                  Evidence and stories for a food-secure Africa
+                <h1 className="headline page-enter mt-5 max-w-[16ch] text-[46px] leading-[1.02] text-white md:text-[76px]" style={{ animationDelay: "80ms" }}>
+                  Evidence and stories for a <span className="whitespace-nowrap">food-secure</span> Africa
                 </h1>
               </div>
               <div className="lg:col-span-4 lg:pt-10">
@@ -278,6 +308,12 @@ const Homepage = () => {
                 </form>
               </div>
 
+              <div className="grid grid-cols-3 gap-6 border-t border-white/15 pt-8 lg:col-span-12 lg:max-w-[640px]">
+                <Stat value={articles.length} label="Stories" />
+                <Stat value={CATEGORIES.length} label="Topics" />
+                <Stat animate={false} value={Math.min(...articles.map((a) => Number(String(a.published_date || a.date).slice(0, 4))).filter(Boolean))} label="Publishing since" />
+              </div>
+
               <ul className="flex flex-wrap gap-2.5 lg:col-span-12" aria-label="Browse by topic">
                 {CATEGORIES.map((c) => (
                   <li key={c.slug}>
@@ -297,9 +333,9 @@ const Homepage = () => {
           </section>
 
           {/* Lead story overlaps the masthead */}
-          <section className="container-page -mt-24 md:-mt-28">
+          <section className="container-page relative z-10 -mt-24 md:-mt-28">
             <div className="grid gap-6 lg:grid-cols-12">
-              <article className="group overflow-hidden rounded-md border border-line bg-surface shadow-[var(--shadow-card)] lg:col-span-8">
+              <Reveal as="article" className="group overflow-hidden rounded-md border border-line bg-surface shadow-[var(--shadow-card)] lg:col-span-8">
                 <Link to={`/news/${lead.id}`} className="block">
                   <Cover src={lead.card_image_url} alt="" ratio="16 / 9" eager rounded="rounded-none" />
                   <div className="p-6 md:p-9">
@@ -322,9 +358,11 @@ const Homepage = () => {
                     <Meta article={lead} className="mt-5" />
                   </div>
                 </Link>
-              </article>
+              </Reveal>
 
-              <aside
+              <Reveal
+                as="aside"
+                index={2}
                 className="rounded-md border border-line bg-surface p-6 shadow-[var(--shadow-card)] lg:col-span-4"
                 aria-label="Latest stories"
               >
@@ -338,7 +376,7 @@ const Homepage = () => {
                     </div>
                   ))}
                 </div>
-              </aside>
+              </Reveal>
             </div>
           </section>
 
@@ -347,8 +385,10 @@ const Homepage = () => {
             <section className="container-page pt-16 md:pt-20">
               <SectionHeading title="More stories" />
               <div className="mt-8 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-                {grid.slice(0, visible).map((a) => (
-                  <ArticleCard key={a.id} article={a} />
+                {grid.slice(0, visible).map((a, i) => (
+                  <Reveal key={a.id} index={i % 3}>
+                    <ArticleCard article={a} />
+                  </Reveal>
                 ))}
               </div>
               {grid.length > visible && (
@@ -367,7 +407,7 @@ const Homepage = () => {
           {/* Topics */}
           <section className="container-page pt-16 md:pt-24">
             <SectionHeading title="Explore by topic" />
-            <div className="mt-8 grid gap-px overflow-hidden rounded-[6px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+            <Reveal className="mt-8 grid gap-px overflow-hidden rounded-[6px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
               {CATEGORIES.map((c) => (
                 <Link
                   key={c.slug}
@@ -392,12 +432,12 @@ const Homepage = () => {
                   </span>
                 </Link>
               ))}
-            </div>
+            </Reveal>
           </section>
 
           {/* About the Centre */}
           <section className="container-page pt-16 md:pt-24">
-            <div className="grid gap-8 rounded-[6px] bg-brand-soft px-6 py-10 md:grid-cols-12 md:px-12 md:py-14">
+            <Reveal className="grid gap-8 rounded-[6px] bg-brand-soft px-6 py-10 md:grid-cols-12 md:px-12 md:py-14">
               <div className="md:col-span-8">
                 <p className="kicker">About the Centre</p>
                 <p className="headline mt-4 text-[26px] leading-[1.25] md:text-[34px]">
@@ -415,7 +455,7 @@ const Homepage = () => {
                   Visit the main website <ArrowUpRight size={16} />
                 </a>
               </div>
-            </div>
+            </Reveal>
           </section>
         </main>
       )}

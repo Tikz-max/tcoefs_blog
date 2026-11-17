@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ExternalLink, FileText, Loader2, PenSquare, Pencil, Search, Star, Trash2 } from "lucide-react";
-import { articlesApi } from "../../lib/articles";
+import { Copy, ExternalLink, FileText, Loader2, PenSquare, Pencil, Search, Star, Trash2 } from "lucide-react";
+import { articlesApi, hasEditorialFields } from "../../lib/articles";
+import { useAuth } from "../../context/AuthContext";
 import { CATEGORIES, articleDate, categorySlug, isPublished } from "../../lib/content";
 import Cover from "../site/Cover";
 import { useToast } from "./Toast";
 
 const ArticlesList = () => {
   const toast = useToast();
+  const { user } = useAuth();
+  const [editorial, setEditorial] = useState(false);
   const [articles, setArticles] = useState(null);
   const [q, setQ] = useState("");
   const [topic, setTopic] = useState("all");
@@ -23,7 +26,28 @@ const ArticlesList = () => {
 
   useEffect(() => {
     load();
+    hasEditorialFields().then(setEditorial);
   }, [load]);
+
+  const duplicate = async (a) => {
+    const id = await articlesApi.nextId();
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const { error } = await articlesApi.create(
+      {
+        ...a,
+        id,
+        title: `Copy of ${a.title}`,
+        status: "draft",
+        featured: false,
+        published_date: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+      },
+      user?.id,
+    );
+    if (error) return toast(error.message || "Could not duplicate the story.", "error");
+    toast("Draft copy created.");
+    load();
+  };
 
   const rows = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -118,6 +142,11 @@ const ArticlesList = () => {
                     <a href={`/news/${a.id}`} target="_blank" rel="noopener noreferrer" className="icon-btn hidden sm:flex" title="View live" aria-label="View live">
                       <ExternalLink size={17} />
                     </a>
+                  )}
+                  {editorial && (
+                    <button onClick={() => duplicate(a)} className="icon-btn hidden sm:flex" title="Duplicate as draft" aria-label="Duplicate as draft">
+                      <Copy size={17} />
+                    </button>
                   )}
                   <Link to={`/admin/articles/edit/${a.id}`} className="icon-btn" title="Edit" aria-label="Edit"><Pencil size={17} /></Link>
                   <button onClick={() => setConfirm(a)} className="icon-btn hover:!text-danger" title="Delete" aria-label="Delete"><Trash2 size={17} /></button>

@@ -111,6 +111,7 @@
 
 @layer base {
     html {
+        scroll-padding-top: 96px;
         scroll-behavior: smooth;
         -webkit-text-size-adjust: 100%;
     }
@@ -351,6 +352,79 @@
         font-weight: 500;
         color: var(--color-ink-2);
         background: var(--color-surface);
+    }
+
+
+    /* --- Motion: subtle scroll reveal (300 to 400ms, small offset) --- */
+    .js .reveal {
+        opacity: 0;
+        transform: translateY(14px);
+        transition:
+            opacity 420ms cubic-bezier(0.22, 0.61, 0.36, 1) calc(var(--i, 0) * 70ms),
+            transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1) calc(var(--i, 0) * 70ms);
+    }
+    .js .reveal.is-in {
+        opacity: 1;
+        transform: none;
+    }
+
+    .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 12px;
+        z-index: 200;
+        padding: 12px 18px;
+        border-radius: 6px;
+        background: var(--color-ink);
+        color: var(--color-paper);
+        font-weight: 700;
+        transform: translateY(-160%);
+        transition: transform 160ms ease;
+    }
+    .skip-link:focus {
+        transform: none;
+    }
+
+    /* Arrow that nudges on hover */
+    .nudge svg {
+        transition: transform 200ms ease;
+    }
+    .group:hover .nudge svg,
+    a:hover .nudge svg,
+    button:hover .nudge svg {
+        transform: translateX(3px);
+    }
+
+    /* Heading anchors in stories */
+    .prose-article .heading-anchor {
+        margin-left: 0.4em;
+        font-family: var(--font-sans);
+        font-size: 0.7em;
+        font-weight: 400;
+        text-decoration: none;
+        color: var(--color-ink-3);
+        opacity: 0;
+        transition: opacity 160ms ease;
+    }
+    .prose-article h2:hover .heading-anchor,
+    .prose-article h3:hover .heading-anchor,
+    .prose-article .heading-anchor:focus-visible {
+        opacity: 1;
+    }
+    @media (hover: none) {
+        .prose-article .heading-anchor {
+            opacity: 0.55;
+        }
+    }
+    .reader .prose-article img {
+        cursor: zoom-in;
+    }
+
+    /* Page enter */
+    .page-enter {
+        /* "backwards" only: a forwards fill would keep a transform active and turn
+           this wrapper into the containing block for every fixed overlay inside. */
+        animation: pageIn 360ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
     }
 
     .skeleton {
@@ -732,6 +806,37 @@
 }
 
 @layer utilities {
+    @keyframes pageIn {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+    @keyframes drift {
+        from {
+            transform: rotate(0deg) scale(1.04);
+        }
+        to {
+            transform: rotate(360deg) scale(1.04);
+        }
+    }
+    .animate-drift {
+        animation: drift 240s linear infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .animate-drift {
+            animation: none;
+        }
+        .js .reveal {
+            opacity: 1;
+            transform: none;
+            transition: none;
+        }
+    }
     .font-serif {
         font-family: var(--font-serif);
     }

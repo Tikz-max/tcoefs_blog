@@ -34,4 +34,4 @@ The visual system is documented in `design-system/tcoefs-blog/MASTER.md` and was
 - `src/components/admin` editorial desk: overview, story list, editor (Tiptap)
 - `src/lib/content.js` dates, reading time, sanitising and table of contents for story HTML
 - `src/index.css` design tokens, light and dark themes, article typography (`.prose-article`)
-- `api/` serverless functions: story pages with social tags, sitemap, latest-news feed for the main site
+- `api/` serverless functions: story pages with social tags, sitemap, RSS feed (`/rss.xml`), latest-news feed for the main site

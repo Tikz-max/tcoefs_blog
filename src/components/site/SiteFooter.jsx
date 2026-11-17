@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowUp, ArrowUpRight } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Rss } from "lucide-react";
 import { CATEGORIES, MAIN_SITE_URL, ORG_NAME } from "../../lib/content";
 
 const SiteFooter = () => (

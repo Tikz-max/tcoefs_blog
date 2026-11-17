@@ -54,7 +54,16 @@ const fetchAll = async () => {
   return { data: data || [], error };
 };
 
+// Short-lived cache so the search palette and pages share one request.
+let publishedCache = null;
+let publishedAt = 0;
+const CACHE_MS = 60 * 1000;
+
 export const articlesApi = {
+  invalidate() {
+    publishedCache = null;
+  },
+
   /** Everything, including drafts. Admin use. */
   async listAll() {
     return fetchAll();
@@ -62,8 +71,16 @@ export const articlesApi = {
 
   /** Published stories only. Public use. */
   async listPublished() {
+    if (publishedCache && Date.now() - publishedAt < CACHE_MS) {
+      return { data: publishedCache, error: null };
+    }
     const { data, error } = await fetchAll();
-    return { data: data.filter(isPublished), error };
+    const published = data.filter(isPublished);
+    if (!error) {
+      publishedCache = published;
+      publishedAt = Date.now();
+    }
+    return { data: published, error };
   },
 
   async get(id) {
@@ -87,6 +104,7 @@ export const articlesApi = {
   },
 
   async create(article, userId) {
+    this.invalidate();
     const payload = await toPayload(article);
     if (isDemo) return { data: await demoStore.upsert(payload), error: null };
     const { data, error } = await supabase
@@ -98,6 +116,7 @@ export const articlesApi = {
   },
 
   async update(id, article, userId) {
+    this.invalidate();
     const payload = await toPayload({ ...article, id });
     if (isDemo) {
       if (payload.featured) await demoStore.feature(id, true);
@@ -113,6 +132,7 @@ export const articlesApi = {
   },
 
   async remove(id) {
+    this.invalidate();
     if (isDemo) {
       await demoStore.remove(id);
       return { error: null };
@@ -132,6 +152,7 @@ export const articlesApi = {
   },
 
   async setFeatured(id, on) {
+    this.invalidate();
     if (isDemo) {
       await demoStore.feature(id, on);
       return { error: null };
