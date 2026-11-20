@@ -1,23 +1,18 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   TCoEFS Blog design system
-   Tokens are CSS variables so the dark theme only has to redefine values.
-   ========================================================================== */
-
-/* ==========================================================================
-   TCoEFS Blog design system
-   Generated with the installed ui-ux-pro-max skill (see design-system/):
-   style   Swiss Modernism 2.0: 12-column grid, rational spacing, hairline rules
-   colour  "Agriculture / Farm Tech": earth green with harvest gold
-   type    "Academic / Research": Crimson Pro headlines, Atkinson Hyperlegible body
+   TCoEFS Blog design system (v3: editorial magazine)
+   Built from the ui-ux-pro-max style database (see design-system/):
+   style   Editorial Grid / Magazine with Exaggerated Minimalism and Kinetic Typography
+   type    Playfair Display headlines, Source Serif 4 long-form, Inter UI, JetBrains Mono labels
+   colour  Deep farmland green on warm ivory, one harvest-gold accent
    ========================================================================== */
 
 @theme {
-    --font-sans:
-        "Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system,
-        "Segoe UI", Roboto, sans-serif;
-    --font-serif: "Crimson Pro", "Iowan Old Style", Georgia, serif;
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-serif: "Playfair Display", "Iowan Old Style", Georgia, serif;
+    --font-text: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
     --color-paper: var(--c-bg);
     --color-surface: var(--c-card);
@@ -35,6 +30,7 @@
     --color-brand-fill: var(--c-cta);
     --color-brand-fill-hover: var(--c-cta-hover);
     --color-band: var(--c-band);
+    --color-band-2: var(--c-band-2);
     --color-gold: var(--c-accent);
     --color-gold-soft: var(--c-accent-soft);
     --color-danger: var(--c-danger);
@@ -45,65 +41,67 @@
     --color-cat-training: var(--c-cat-training);
     --color-cat-partnership: var(--c-cat-partnership);
 
-    --shadow-card: 0 1px 2px rgb(20 83 45 / 0.05), 0 8px 24px rgb(20 83 45 / 0.07);
-    --shadow-pop: 0 4px 12px rgb(20 83 45 / 0.1), 0 20px 48px rgb(20 83 45 / 0.16);
+    --shadow-card: 0 1px 2px rgb(13 37 24 / 0.05), 0 10px 30px rgb(13 37 24 / 0.08);
+    --shadow-pop: 0 4px 12px rgb(13 37 24 / 0.12), 0 24px 56px rgb(13 37 24 / 0.2);
 }
 
 :root {
-    --c-bg: #f0fdf4;
-    --c-card: #ffffff;
-    --c-muted: #e8f0f1;
-    --c-border: #cfe9d9;
-    --c-border-strong: #9fc9b0;
+    --c-bg: #f6f2e8;
+    --c-card: #fffdf8;
+    --c-muted: #ece6d6;
+    --c-border: #ddd5c1;
+    --c-border-strong: #b7ac90;
 
-    --c-fg: #14532d;
-    --c-fg-2: #3f4f5f;
-    --c-fg-3: #566474;
+    --c-fg: #0d2518;
+    --c-fg-2: #3f4b44;
+    --c-fg-3: #5c6860;
 
-    --c-primary: #15803d;
-    --c-primary-strong: #166534;
-    --c-primary-soft: #dcfce7;
-    --c-cta: #a16207;
-    --c-cta-hover: #854d0e;
-    --c-on-cta: #ffffff;
-    --c-accent: #a16207;
-    --c-accent-soft: #fef3c7;
-    --c-band: #14532d;
+    --c-primary: #1b6b3a;
+    --c-primary-strong: #12532b;
+    --c-primary-soft: #e4ebd9;
+    --c-cta: #e3a72f;
+    --c-cta-hover: #f0bd52;
+    --c-on-cta: #0d2518;
+    --c-accent: #8a5a00;
+    --c-accent-soft: #f6e7bf;
+    --c-band: #0b2417;
+    --c-band-2: #123524;
     --c-danger: #b3261e;
     --c-danger-soft: #fbeae8;
 
-    --c-cat-news: #15803d;
+    --c-cat-news: #1b6b3a;
     --c-cat-research: #1e40af;
-    --c-cat-training: #a16207;
+    --c-cat-training: #8a5a00;
     --c-cat-partnership: #9a3412;
 }
 
 :root[data-theme="dark"] {
-    --c-bg: #08170f;
-    --c-card: #0f2417;
-    --c-muted: #152c1e;
+    --c-bg: #07140d;
+    --c-card: #0e2217;
+    --c-muted: #14301f;
     --c-border: #1f3d2b;
-    --c-border-strong: #2f5a41;
+    --c-border-strong: #33583f;
 
-    --c-fg: #e8f5ec;
-    --c-fg-2: #b4c6ba;
-    --c-fg-3: #8aa093;
+    --c-fg: #f2ede1;
+    --c-fg-2: #bfc8bd;
+    --c-fg-3: #93a196;
 
-    --c-primary: #4ade80;
-    --c-primary-strong: #86efac;
-    --c-primary-soft: #11291a;
-    --c-cta: #fbbf24;
-    --c-cta-hover: #fcd34d;
-    --c-on-cta: #1a1203;
-    --c-accent: #fbbf24;
+    --c-primary: #6fd699;
+    --c-primary-strong: #9be8b9;
+    --c-primary-soft: #12291a;
+    --c-cta: #e3a72f;
+    --c-cta-hover: #f0bd52;
+    --c-on-cta: #0d2518;
+    --c-accent: #e3a72f;
     --c-accent-soft: #2b2208;
     --c-band: #040d08;
+    --c-band-2: #0a1c11;
     --c-danger: #f2877f;
     --c-danger-soft: #331a18;
 
-    --c-cat-news: #4ade80;
+    --c-cat-news: #6fd699;
     --c-cat-research: #93b4ff;
-    --c-cat-training: #fbbf24;
+    --c-cat-training: #e3a72f;
     --c-cat-partnership: #f4a582;
 
     color-scheme: dark;
@@ -171,11 +169,11 @@
 
     /* Small uppercase label used above headlines */
     .kicker {
-        font-family: var(--font-sans);
+        font-family: var(--font-mono);
         font-size: 11.5px;
         line-height: 1;
-        font-weight: 600;
-        letter-spacing: 0.12em;
+        font-weight: 500;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
         color: var(--color-cat-news);
     }
@@ -196,8 +194,8 @@
 
     .headline {
         font-family: var(--font-serif);
-        font-weight: 500;
-        letter-spacing: -0.012em;
+        font-weight: 700;
+        letter-spacing: -0.02em;
         color: var(--color-ink);
         text-wrap: balance;
     }
@@ -220,8 +218,8 @@
         align-items: baseline;
         justify-content: space-between;
         gap: 16px;
-        border-top: 2px solid var(--color-ink);
-        padding-top: 14px;
+        border-top: 1px solid var(--color-ink);
+        padding-top: 18px;
     }
 
     .btn {
@@ -247,6 +245,7 @@
     .btn-primary {
         background: var(--color-brand-fill);
         color: var(--c-on-cta);
+        font-weight: 600;
     }
     .btn-primary:hover:not(:disabled) {
         background: var(--color-brand-fill-hover);
@@ -427,6 +426,174 @@
         animation: pageIn 360ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
     }
 
+
+    /* ======================= Editorial system ======================= */
+    .mono {
+        font-family: var(--font-mono);
+        letter-spacing: 0.04em;
+    }
+    .eyebrow-mono {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+    /* Oversized hero type: Exaggerated Minimalism */
+    .display-hero {
+        font-family: var(--font-serif);
+        font-weight: 800;
+        font-size: clamp(2.6rem, 8.6vw, 8.5rem);
+        line-height: 0.94;
+        letter-spacing: -0.035em;
+        text-wrap: balance;
+    }
+    .display-xl {
+        font-family: var(--font-serif);
+        font-weight: 800;
+        font-size: clamp(2.3rem, 5.4vw, 5rem);
+        line-height: 0.98;
+        letter-spacing: -0.03em;
+        text-wrap: balance;
+    }
+    .display-lg {
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: clamp(1.9rem, 3.4vw, 3.1rem);
+        line-height: 1.04;
+        letter-spacing: -0.025em;
+        text-wrap: balance;
+    }
+
+    /* Kinetic type: each line slides up out of a mask */
+    .line-mask {
+        display: block;
+        overflow: hidden;
+        padding-bottom: 0.12em;
+        margin-bottom: -0.12em;
+    }
+    .line-mask > span {
+        display: block;
+        transform: translateY(108%);
+        animation: lineUp 1100ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: calc(var(--d, 0) * 110ms + 120ms);
+    }
+    .fade-up {
+        opacity: 0;
+        transform: translateY(14px);
+        animation: fadeUp2 800ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: calc(var(--d, 0) * 110ms + 120ms);
+    }
+
+    /* Kinetic headline: each word rises out of its own mask */
+    .word-mask {
+        display: inline-block;
+        overflow: hidden;
+        vertical-align: top;
+        padding-bottom: 0.14em;
+        margin-bottom: -0.14em;
+    }
+    .word-mask > span {
+        display: inline-block;
+        transform: translateY(112%);
+        animation: lineUp 1100ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation-delay: calc(var(--d, 0) * 55ms + 200ms);
+    }
+
+    /* Ticker */
+    .ticker {
+        display: flex;
+        width: max-content;
+        animation: marquee 60s linear infinite;
+    }
+    .ticker:hover {
+        animation-play-state: paused;
+    }
+
+    /* Photographic hero treatment */
+    .hero-image {
+        transform: translate3d(0, calc(var(--py, 0) * 1px), 0) scale(calc(1.08 + var(--ps, 0) * 0.04));
+        will-change: transform;
+    }
+
+    /* Numbered editorial rows */
+    .row-link {
+        position: relative;
+        isolation: isolate;
+        transition: color 260ms ease, padding 360ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .row-link::before {
+        content: "";
+        position: absolute;
+        inset: 0 -9999px;
+        background: var(--c-band);
+        transform: scaleY(0);
+        transform-origin: bottom;
+        transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: -1;
+    }
+    .row-link:hover::before,
+    .row-link:focus-visible::before {
+        transform: scaleY(1);
+    }
+    .row-link:hover,
+    .row-link:focus-visible {
+        color: #f6f2e8;
+        padding-left: 18px;
+    }
+
+    /* Image with a reveal mask on scroll. The wrapper is observed; the child is
+       clipped, because a fully clipped element never reports as visible. */
+    .js .reveal-mask > * {
+        clip-path: inset(0 0 100% 0);
+        transition: clip-path 1100ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i, 0) * 90ms);
+    }
+    .js .reveal-mask.is-in > * {
+        clip-path: inset(0 0 0 0);
+    }
+
+    /* Editorial story tile: borderless, imagery first */
+    .tile .tile-img {
+        transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1), filter 500ms ease;
+    }
+    .tile:hover .tile-img {
+        transform: scale(1.045);
+    }
+    .tile .tile-title {
+        background-image: linear-gradient(currentColor, currentColor);
+        background-size: 0% 2px;
+        background-position: 0 100%;
+        background-repeat: no-repeat;
+        transition: background-size 420ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tile:hover .tile-title,
+    .tile:focus-visible .tile-title {
+        background-size: 100% 2px;
+    }
+
+    /* Giant footer wordmark */
+    .wordmark {
+        font-family: var(--font-serif);
+        font-weight: 900;
+        font-size: clamp(4.5rem, 21vw, 20rem);
+        line-height: 0.8;
+        letter-spacing: -0.05em;
+        color: transparent;
+        -webkit-text-stroke: 1.5px color-mix(in srgb, #f6f2e8 28%, transparent);
+        user-select: none;
+    }
+
+    /* Film grain: adds tactility to flat dark surfaces */
+    .grain::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.12;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
     .skeleton {
         background: linear-gradient(
             90deg,
@@ -444,16 +611,27 @@
        admin editor so that what is written is exactly what is published.
        ---------------------------------------------------------------------- */
     .prose-article {
-        font-family: var(--font-sans);
-        font-size: 18px;
-        line-height: 1.75;
+        font-family: var(--font-text);
+        font-size: 19px;
+        line-height: 1.72;
         color: var(--color-ink);
         overflow-wrap: break-word;
+        font-variation-settings: "opsz" 18;
     }
     @media (min-width: 768px) {
         .prose-article {
-            font-size: 19.5px;
+            font-size: 21px;
         }
+    }
+    /* Drop cap on the first real paragraph of a story */
+    .reader .prose-article p.dropcap::first-letter {
+        float: left;
+        font-family: var(--font-serif);
+        font-weight: 800;
+        font-size: 5.1em;
+        line-height: 0.78;
+        padding: 0.07em 0.09em 0 0;
+        color: var(--color-ink);
     }
 
     .prose-article > * + * {
@@ -480,23 +658,24 @@
     }
     .prose-article h1,
     .prose-article h2 {
-        font-size: 1.85em;
-        line-height: 1.15;
-        font-weight: 600;
-        margin-top: 1.9em;
+        font-size: 1.9em;
+        line-height: 1.12;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-top: 2em;
     }
     .prose-article h3 {
-        font-size: 1.45em;
-        line-height: 1.22;
-        font-weight: 600;
-        margin-top: 1.7em;
+        font-size: 1.4em;
+        line-height: 1.2;
+        font-weight: 700;
+        margin-top: 1.8em;
     }
     .prose-article h4 {
-        font-family: var(--font-sans);
-        font-size: 0.74em;
+        font-family: var(--font-mono);
+        font-size: 0.62em;
         line-height: 1.4;
-        font-weight: 700;
-        letter-spacing: 0.1em;
+        font-weight: 500;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
         color: var(--color-ink-2);
         margin-top: 2em;
@@ -577,28 +756,20 @@
 
     /* Pull quote: a short, quotable line set large */
     .prose-article blockquote.pull-quote {
-        margin-top: 1.9em;
-        margin-bottom: 1.9em;
-        padding: 0.9em 0 0.9em;
-        border-left: 0;
-        border-top: 2px solid var(--color-ink);
-        border-bottom: 1px solid var(--color-line-strong);
-        font-style: normal;
+        margin-top: 2.2em;
+        margin-bottom: 2.2em;
+        padding: 0.2em 0 0.2em 1.1em;
+        border-left: 4px solid var(--c-cta);
+        border-top: 0;
+        border-bottom: 0;
+        font-style: italic;
         font-family: var(--font-serif);
-        font-size: 1.7em;
-        line-height: 1.25;
+        font-size: clamp(28px, 3.4vw, 40px);
+        line-height: 1.18;
         font-weight: 500;
-        letter-spacing: -0.012em;
+        letter-spacing: -0.02em;
         color: var(--color-ink);
         text-wrap: balance;
-    }
-    .prose-article blockquote.pull-quote::before {
-        content: "\201C";
-        display: block;
-        height: 0.5em;
-        font-size: 2.2em;
-        line-height: 1;
-        color: var(--color-gold);
     }
 
     .prose-article hr {
@@ -632,8 +803,8 @@
         margin-top: 10px;
         padding-left: 12px;
         border-left: 2px solid var(--color-gold);
-        font-family: var(--font-sans);
-        font-size: 13.5px;
+        font-family: var(--font-mono);
+        font-size: 12.5px;
         line-height: 1.5;
         color: var(--color-ink-3);
     }
@@ -806,6 +977,52 @@
 }
 
 @layer utilities {
+    @keyframes lineUp {
+        to {
+            transform: translateY(0);
+        }
+    }
+    @keyframes fadeUp2 {
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+    @keyframes scrollcue {
+        0% {
+            transform: translateY(-110%);
+        }
+        100% {
+            transform: translateY(380%);
+        }
+    }
+    @keyframes marquee {
+        to {
+            transform: translateX(-50%);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .line-mask > span,
+        .word-mask > span {
+            transform: none;
+            animation: none;
+        }
+        .fade-up {
+            opacity: 1;
+            transform: none;
+            animation: none;
+        }
+        .ticker {
+            animation: none;
+        }
+        .hero-image {
+            transform: scale(1.04);
+        }
+        .js .reveal-mask > * {
+            clip-path: none;
+            transition: none;
+        }
+    }
     @keyframes pageIn {
         from {
             opacity: 0;

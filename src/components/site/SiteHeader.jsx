@@ -11,14 +11,14 @@ import {
   User,
   X,
 } from "lucide-react";
-import { CATEGORIES, MAIN_SITE_URL, ORG_NAME } from "../../lib/content";
+import { CATEGORIES, MAIN_SITE_URL } from "../../lib/content";
 import { useAuth } from "../../context/AuthContext";
 import { useAdmin } from "../../context/AdminContext";
 import { useTheme } from "../../hooks/useTheme";
 import AuthModal from "../auth/AuthModal";
 import SearchPalette from "./SearchPalette";
 
-const AccountMenu = ({ onSignIn }) => {
+const AccountMenu = ({ onSignIn, onDark = false }) => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const [open, setOpen] = useState(false);
@@ -40,7 +40,7 @@ const AccountMenu = ({ onSignIn }) => {
 
   if (!user) {
     return (
-      <button onClick={onSignIn} className="icon-btn" aria-label="Sign in">
+      <button onClick={onSignIn} className={`icon-btn ${onDark ? "!text-white hover:!bg-white/15" : ""}`} aria-label="Sign in">
         <User size={18} />
       </button>
     );
@@ -88,7 +88,7 @@ const AccountMenu = ({ onSignIn }) => {
   );
 };
 
-const SiteHeader = () => {
+const SiteHeader = ({ overlay = false }) => {
   const { pathname } = useLocation();
   const [params] = useSearchParams();
   const { theme, toggle } = useTheme();
@@ -97,6 +97,7 @@ const SiteHeader = () => {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const onDark = overlay && !scrolled && !menuOpen;
   const activeTopic = params.get("topic");
   const onLatest = pathname === "/" && !activeTopic && !params.get("q");
 
@@ -131,50 +132,35 @@ const SiteHeader = () => {
   }, []);
 
   const topicClass = (active) =>
-    `relative flex min-h-[44px] items-center px-1 text-[15px] font-bold transition-colors ${
+    `relative flex min-h-[44px] items-center px-1 text-[13px] font-medium uppercase tracking-[0.12em] transition-colors font-mono ${
       active
-        ? "text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-brand"
-        : "text-ink-2 hover:text-ink"
-    }`;
+        ? "after:absolute after:inset-x-0 after:bottom-1 after:h-[2px] after:bg-brand-fill"
+        : onDark
+          ? "text-white/75 hover:text-white"
+          : "text-ink-2 hover:text-ink"
+    } ${active && onDark ? "text-white" : ""} ${active && !onDark ? "text-ink" : ""}`;
 
   return (
     <>
       <a href="#main" className="skip-link">Skip to main content</a>
 
-      {/* Institutional strip */}
-      <div className="no-print bg-band text-white/85">
-        <div className="container-page flex h-9 items-center justify-between gap-4 text-[12.5px]">
-          <p className="truncate">
-            <span className="hidden sm:inline">{ORG_NAME}</span>
-            <span className="sm:hidden">TCoEFS</span>
-            <span className="mx-2 text-white/35">|</span>
-            University of Jos
-          </p>
-          <a
-            href={MAIN_SITE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="nudge inline-flex shrink-0 items-center gap-1 font-bold text-white hover:underline"
-          >
-            Main website <ArrowUpRight size={13} />
-          </a>
-        </div>
-      </div>
-
       <header
-        className={`no-print sticky top-0 z-40 border-b bg-paper/92 backdrop-blur transition-shadow duration-300 ${
-          scrolled ? "border-line shadow-[0_6px_24px_-12px_rgb(20_83_45/0.25)]" : "border-line"
+        className={`no-print z-40 border-b transition-[background-color,border-color,box-shadow,color] duration-500 ${
+          overlay ? "fixed inset-x-0 top-0" : "sticky top-0"
+        } ${
+          onDark
+            ? "border-white/15 bg-transparent text-white"
+            : "border-line bg-paper/90 text-ink shadow-[0_8px_30px_-18px_rgb(13_37_24/0.35)] backdrop-blur-md"
         }`}
       >
-        <div className="container-page flex h-[68px] items-center justify-between gap-6">
-          <Link to="/" className="flex shrink-0 items-center gap-3" aria-label="TCoEFS Blog home">
-            <img src="/tcoefs-logo.png" alt="" className="h-10 w-auto" />
+        <div className="container-page flex h-[76px] items-center justify-between gap-6">
+          <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="TCoEFS Blog home">
+            <span className={`flex h-11 w-11 items-center justify-center rounded-full p-1.5 transition-colors duration-500 ${onDark ? "bg-white" : "bg-surface ring-1 ring-line"}`}>
+              <img src="/tcoefs-logo.png" alt="" className="h-full w-auto" />
+            </span>
             <span className="flex flex-col leading-none">
-              <span className="font-serif text-[25px] font-semibold tracking-tight text-ink">
-                TCoEFS <span className="font-normal italic text-brand">Blog</span>
-              </span>
-              <span className="mt-1 hidden text-[10.5px] font-bold uppercase tracking-[0.14em] text-ink-3 sm:block">
-                Evidence for food security
+              <span className="font-serif text-[27px] font-extrabold tracking-[-0.03em]">
+                TCoEFS<span className={`ml-1.5 font-medium italic ${onDark ? "text-white/75" : "text-brand"}`}>Blog</span>
               </span>
             </span>
           </Link>
@@ -194,31 +180,43 @@ const SiteHeader = () => {
           </nav>
 
           <div className="flex items-center gap-1">
+            <a
+              href={MAIN_SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`nudge mr-2 hidden items-center gap-1 font-mono text-[13px] font-medium uppercase tracking-[0.12em] xl:inline-flex ${onDark ? "text-white/75 hover:text-white" : "text-ink-2 hover:text-ink"}`}
+            >
+              Main site <ArrowUpRight size={13} />
+            </a>
             <button
               onClick={() => setPaletteOpen(true)}
-              className="hidden h-11 items-center gap-2.5 rounded-md border border-line-strong bg-surface px-3.5 text-[14px] text-ink-3 transition-colors hover:border-ink hover:text-ink md:flex"
+              className={`hidden h-11 items-center gap-2.5 rounded-full border px-4 text-[14px] transition-colors md:flex ${
+                onDark
+                  ? "border-white/35 text-white/85 hover:border-white hover:text-white"
+                  : "border-line-strong bg-surface text-ink-3 hover:border-ink hover:text-ink"
+              }`}
               aria-label="Search stories"
             >
               <Search size={16} />
               Search
-              <kbd className="ml-3 hidden rounded border border-line bg-muted px-1.5 py-0.5 font-sans text-[11.5px] text-ink-3 xl:inline">
+              <kbd className={`ml-3 hidden rounded px-1.5 py-0.5 font-mono text-[11px] xl:inline ${onDark ? "bg-white/15 text-white/80" : "border border-line bg-muted text-ink-3"}`}>
                 Ctrl K
               </kbd>
             </button>
-            <button onClick={() => setPaletteOpen(true)} className="icon-btn md:hidden" aria-label="Search stories">
+            <button onClick={() => setPaletteOpen(true)} className={`icon-btn md:hidden ${onDark ? "!text-white hover:!bg-white/15" : ""}`} aria-label="Search stories">
               <Search size={19} />
             </button>
             <button
               onClick={toggle}
-              className="icon-btn"
+              className={`icon-btn ${onDark ? "!text-white hover:!bg-white/15" : ""}`}
               aria-label={theme === "dark" ? "Use light theme" : "Use dark theme"}
             >
               {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
             </button>
             <div className="hidden lg:block">
-              <AccountMenu onSignIn={() => setAuthOpen(true)} />
+              <AccountMenu onSignIn={() => setAuthOpen(true)} onDark={onDark} />
             </div>
-            <button onClick={() => setMenuOpen(true)} className="icon-btn lg:hidden" aria-label="Open menu">
+            <button onClick={() => setMenuOpen(true)} className={`icon-btn lg:hidden ${onDark ? "!text-white hover:!bg-white/15" : ""}`} aria-label="Open menu">
               <Menu size={21} />
             </button>
           </div>

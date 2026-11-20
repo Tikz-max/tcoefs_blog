@@ -32,7 +32,7 @@ function stripHtml(value = "") {
 }
 
 function absoluteUrl(url) {
-  if (!url) return `${siteUrl}/tcoefs-logo.png`;
+  if (!url) return `${siteUrl}/og-default.png`;
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
   return `${siteUrl}${url.startsWith("/") ? "" : "/"}${url}`;
 }

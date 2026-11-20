@@ -75,7 +75,7 @@ const ReadingProgress = ({ targetRef }) => {
   return (
     <div className="no-print pointer-events-none fixed inset-x-0 top-0 z-50 h-[3px]" aria-hidden="true">
       <div
-        className="h-full origin-left bg-brand"
+        className="h-full origin-left bg-brand-fill"
         style={{ transform: `scaleX(${progress})` }}
       />
     </div>
@@ -327,7 +327,7 @@ const ArticleView = () => {
 
       <main id="main" tabIndex={-1} className="reader container-page pt-8 focus:outline-none md:pt-12">
         <article className="grid gap-x-10 lg:grid-cols-[52px_minmax(0,720px)_minmax(0,1fr)]">
-          <div className="lg:col-start-2">
+          <div className="lg:col-span-3">
             <ArticleHeader article={article} />
             <div className="mt-5 lg:hidden">
               <ShareBar article={article} />
@@ -335,7 +335,7 @@ const ArticleView = () => {
           </div>
 
           {article.card_image_url && (
-            <div className="mt-8 lg:col-span-2 lg:col-start-2 lg:mt-10">
+            <div className="mt-10 lg:col-span-3 lg:mt-14">
               <ArticleCover article={article} />
             </div>
           )}

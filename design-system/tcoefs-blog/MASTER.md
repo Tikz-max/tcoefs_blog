@@ -1,66 +1,64 @@
-# TCoEFS Blog design system (master)
+# TCoEFS Blog design system (master, v3 editorial magazine)
 
-Source of truth for the blog's look. Built from searches run with the installed
-`ui-ux-pro-max` skill (`.claude/skills/ui-ux-pro-max`), then combined:
+Source of truth for the blog's look. Built with the installed `ui-ux-pro-max` skill
+(`.claude/skills/ui-ux-pro-max`). Earlier versions used its safe "academic" output; this version
+follows the style database's recommendations for news, blogs and long-form publishing.
 
 | Decision | Skill query | Result used |
 | --- | --- | --- |
-| Pattern and style | `news publication blog long-form articles research think tank` | Swiss Modernism 2.0 (12-column grid, rational spacing, hairline rules) |
-| Palette | `agriculture farm organic eco` (domain `color`) | Agriculture / Farm Tech: earth green with harvest gold |
-| Typography | `research policy institute publication serif readable` (domain `typography`) | Academic / Research: Crimson Pro + Atkinson Hyperlegible |
-| Reading | `article reading long-form typography line length` (domain `ux`) | 65 to 75 characters per line, line height 1.5 to 1.75, balanced headings |
+| Layout | `editorial magazine oversized typography photography` (domain `style`) | Editorial Grid / Magazine: asymmetric grid, drop caps, pull quotes, parallax photography, reveal on scroll |
+| Scale | same query | Exaggerated Minimalism: hero type to 8.5rem, weight 800, tight tracking, generous space, one accent |
+| Hero | same query | Kinetic Typography: words rise out of masks, scroll-triggered reveals |
+| Type | `editorial bold display high contrast headline` (domain `typography`) | Playfair Display headlines, Source Serif 4 reading text, Inter UI, JetBrains Mono labels |
+| Palette | `agriculture farm organic eco` (domain `color`) | Earth green with harvest gold, applied as deep farmland green on warm ivory with one gold accent |
 
-Re-run any query with
-`python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --design-system -p "TCoEFS Blog"`.
+Re-run: `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --domain style`
 
-## Colour (tokens live in `src/index.css`)
+## Colour (tokens in `src/index.css`)
 
 | Role | Light | Dark |
 | --- | --- | --- |
-| Background | `#F0FDF4` | `#08170F` |
-| Card | `#FFFFFF` | `#0F2417` |
-| Foreground | `#14532D` | `#E8F5EC` |
-| Secondary text | `#3F4F5F` | `#B4C6BA` |
-| Meta text | `#566474` | `#8AA093` |
-| Primary (links, active) | `#15803D` | `#4ADE80` |
-| CTA and accent (harvest gold) | `#A16207` | `#FBBF24` |
-| Footer band | `#14532D` | `#040D08` |
-| Border | `#CFE9D9` | `#1F3D2B` |
+| Paper | `#F6F2E8` | `#07140D` |
+| Card | `#FFFDF8` | `#0E2217` |
+| Ink | `#0D2518` | `#F2EDE1` |
+| Secondary / meta text | `#3F4B44` / `#5C6860` | `#BFC8BD` / `#93A196` |
+| Primary (links, emphasis) | `#1B6B3A` | `#6FD699` |
+| Accent / CTA (harvest gold) | `#E3A72F` fill, `#8A5A00` text | `#E3A72F` |
+| Deep band (hero, footer) | `#0B2417` | `#040D08` |
 
-Topic colours: News green, Research blue `#1E40AF`, Training gold, Partnership `#9A3412`.
-All text pairs were checked at 4.5:1 or better in both themes.
+Text on gold uses ink (`#0D2518`). All text pairs checked at 4.5:1 or better.
 
 ## Typography
 
-- Headlines, standfirsts, pull quotes: Crimson Pro (400 to 600).
-- Body, interface, long-form text: Atkinson Hyperlegible (400, 700), chosen for legibility on low-end screens.
-- Article body 18px (19.5px from 768px up), line height 1.75, measure about 720px.
-- Headings use `text-wrap: balance`.
+- Display: Playfair Display 800, `clamp(2.6rem, 8.6vw, 8.5rem)`, line height 0.94, tracking -0.035em.
+- Headlines: Playfair Display 700. Pull quotes: Playfair italic 500 with a gold rule.
+- Reading text: Source Serif 4, 19px (21px from 768px), line height 1.72, measure about 720px, drop cap on the first real paragraph.
+- Labels, dates, captions, navigation: JetBrains Mono, uppercase with 0.12 to 0.16em tracking.
+- UI controls: Inter.
 
 ## Layout and components
 
-- 12-column grid, 1200px container, 8px base spacing, 6px radii, 1px hairline borders.
-- Front page: dark green masthead (headline, search, topic counts) with the lead story overlapping it.
-- One filled gold button per view; secondary actions are outlined or text.
-- Icon buttons and menu targets are at least 44px.
-- Motion is subtle (150 to 300ms) and removed under `prefers-reduced-motion`.
-- Icons are Lucide SVGs, never emoji.
+- Front page: full-screen photographic hero (lead story), headline ticker, oversized manifesto with count-up figures, asymmetric Latest grid (one feature tile and a stacked column), full-width topic rows, closing band, footer with outline wordmark.
+- Story page: oversized headline, italic standfirst, labelled byline grid (By, Published, Topic, Reading time), wide cover image with reveal, share rail, table of contents.
+- Story tiles are borderless and imagery-led. Missing images fall back to a deep green tile with contour artwork and the topic name.
+- Header is transparent over the hero and turns solid after scrolling. One gold pill call to action per view.
+- Icon buttons and menu targets are at least 44px. Icons are Lucide SVGs.
 
-## Motion (skill query: `scroll reveal stagger`, domain `gsap`, subtle tier)
+## Motion (query `scroll reveal stagger`, domain `gsap`; implemented in CSS and small hooks, no GSAP dependency)
 
-- Scroll reveal: 14px lift and fade, 420ms, staggered 70ms (`Reveal` component, CSS only, no GSAP dependency).
-- Content is visible without JavaScript, and under `prefers-reduced-motion` everything renders in place.
-- Page enter: 360ms fade with 6px rise. Masthead contour art drifts once every 240s (off under reduced motion).
-- Interactive arrows nudge 3px on hover. Header gains a soft shadow after scrolling.
-- Fixed overlays must never sit inside an element with an active transform animation (use `backwards` fill only).
+- Hero words rise out of masks (1.1s, ease-out-expo), slow image parallax, scroll cue.
+- Scroll reveal: 14px lift and fade, 420ms, staggered; image mask reveal 1.1s.
+- Row hover fills, tile image zoom and title underline, headline ticker (pauses on hover).
+- Everything is switched off or shown in its final state under `prefers-reduced-motion`.
+- Never put `position: fixed` overlays inside an element whose animation fills forwards.
+- Observe a wrapper, not an element that is fully clipped, or it never reports as visible.
 
-## Interaction patterns
+## Promotional assets (skill: `banner-design`)
 
-- Search palette: Ctrl or Cmd + K, or "/". Combobox semantics, arrow keys, focus returns on close.
-- Story pages: section anchors, image lightbox with captions, previous and next story, native share on mobile, back to top.
-- Skip link first in tab order; `scroll-padding-top` keeps the sticky header from covering focused content.
+- `assets/banners/tcoefs-blog/og-default.html` renders `public/og-default.png` (1200 x 630), used for link previews when a story has no image.
 
 ## Avoid
 
-Low hierarchy, cluttered visuals, more than one primary action per view, placeholder-only
-labels, colour as the only signal, text below 14px except uppercase labels.
+More than one primary action per view, text under 12px, colour as the only signal, serif body text under 18px,
+vendor chunk splitting in `vite.config.js` (it breaks the production build), unverified dev-server-only testing
+(always check `vite build` plus `vite preview`).
