@@ -215,6 +215,15 @@ export const prepareArticleHtml = (html = "") => {
     });
   }
 
+  // Drop cap on the first real paragraph (skip bold title lines and short notes).
+  const firstText = [...root.children].find(
+    (el) =>
+      el.tagName === "P" &&
+      el.textContent.trim().length > 90 &&
+      !(el.children.length === 1 && el.firstElementChild.tagName === "STRONG" && el.firstElementChild.textContent.trim() === el.textContent.trim()),
+  );
+  if (firstText) firstText.classList.add("dropcap");
+
   // Older posts used <h1> inside the body; the page already has one.
   root.querySelectorAll("h1").forEach((h1) => {
     const h2 = doc.createElement("h2");

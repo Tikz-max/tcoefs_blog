@@ -1,9 +1,17 @@
 import { Link } from "react-router-dom";
 import Cover from "./Cover";
+import Reveal from "./Reveal";
 import { Kicker } from "./ArticleCard";
 import { articleDate, categorySlug } from "../../lib/content";
 
-/** Headline block: breadcrumb, kicker, title, standfirst and byline. */
+const Field = ({ label, children }) => (
+  <div className="min-w-0">
+    <dt className="eyebrow-mono !text-[11px] text-ink-3">{label}</dt>
+    <dd className="mt-2 text-[15.5px] font-medium leading-snug text-ink">{children}</dd>
+  </div>
+);
+
+/** Magazine headline block: breadcrumb, label, oversized title, standfirst, byline. */
 export const ArticleHeader = ({ article, linked = true }) => {
   const author = article.author?.trim();
   const slug = categorySlug(article.category);
@@ -11,61 +19,37 @@ export const ArticleHeader = ({ article, linked = true }) => {
 
   return (
     <header>
-      <nav className="meta no-print flex items-center gap-2" aria-label="Breadcrumb">
-        <Crumb {...(linked ? { to: "/" } : {})} className="hover:text-ink hover:underline">
-          Blog
-        </Crumb>
+      <nav className="no-print mono flex items-center gap-2 text-[12.5px] text-ink-3" aria-label="Breadcrumb">
+        <Crumb {...(linked ? { to: "/" } : {})} className="hover:text-ink hover:underline">Blog</Crumb>
         <span aria-hidden="true">/</span>
-        <Crumb
-          {...(linked ? { to: `/?topic=${slug}` } : {})}
-          className="hover:text-ink hover:underline"
-        >
+        <Crumb {...(linked ? { to: `/?topic=${slug}` } : {})} className="hover:text-ink hover:underline">
           {article.category}
         </Crumb>
       </nav>
 
-      <div className="mt-6">
+      <div className="mt-10">
         <Kicker category={article.category} />
       </div>
-      <h1 className="headline mt-4 text-[36px] leading-[1.07] md:text-[52px]">
+      <h1 className="display-xl mt-5 max-w-[19ch] !text-[clamp(2.4rem,6.2vw,5.8rem)] !leading-[0.98]">
         {article.title || "Untitled story"}
       </h1>
       {article.excerpt && (
-        <p className="mt-5 font-serif text-[21px] leading-[1.45] text-ink-2 md:text-[24px]">
+        <p className="mt-8 max-w-[46ch] font-text text-[clamp(20px,2.1vw,27px)] italic leading-[1.4] text-ink-2">
           {article.excerpt}
         </p>
       )}
 
-      <div className="mt-7 flex items-center gap-3.5 border-y border-line py-4">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-surface">
-          {author ? (
-            <span className="font-serif text-lg font-semibold text-brand">
-              {author.charAt(0).toUpperCase()}
-            </span>
-          ) : (
-            <img src="/tcoefs-logo.png" alt="" className="h-7 w-auto" />
-          )}
-        </span>
-        <div className="min-w-0 text-[14px] leading-snug">
-          <p className="font-semibold text-ink">
-            {author || "TCoEFS"}
-            {author && article.author_role && (
-              <span className="font-normal text-ink-3">, {article.author_role}</span>
-            )}
-          </p>
-          <p className="meta mt-0.5 flex flex-wrap gap-x-2">
-            <time dateTime={article.published_date || undefined}>
-              {articleDate(article)}
-            </time>
-            {article.read_time && (
-              <>
-                <span aria-hidden="true">·</span>
-                <span>{article.read_time}</span>
-              </>
-            )}
-          </p>
-        </div>
-      </div>
+      <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 border-y border-ink py-6 sm:grid-cols-4">
+        <Field label="By">
+          {author || "TCoEFS"}
+          {author && article.author_role && <span className="block text-[13.5px] font-normal text-ink-3">{article.author_role}</span>}
+        </Field>
+        <Field label="Published">
+          <time dateTime={article.published_date || undefined}>{articleDate(article)}</time>
+        </Field>
+        <Field label="Topic">{article.category}</Field>
+        <Field label="Reading time">{article.read_time || "—"}</Field>
+      </dl>
     </header>
   );
 };
@@ -73,15 +57,18 @@ export const ArticleHeader = ({ article, linked = true }) => {
 export const ArticleCover = ({ article }) =>
   article.card_image_url ? (
     <figure>
-      <Cover
-        src={article.card_image_url}
-        alt={article.image_caption || article.title || ""}
-        ratio="16 / 9"
-        zoom={false}
-        eager
-      />
+      <Reveal className="reveal-mask">
+        <Cover
+          src={article.card_image_url}
+          alt={article.image_caption || article.title || ""}
+          ratio="16 / 8"
+          zoom={false}
+          eager
+          label={article.category}
+        />
+      </Reveal>
       {article.image_caption && (
-        <figcaption className="mt-2.5 border-l-2 border-gold pl-3 text-[13.5px] leading-normal text-ink-3">
+        <figcaption className="mono mt-3 max-w-[70ch] border-l-2 border-brand-fill pl-3 text-[12.5px] leading-normal text-ink-3">
           {article.image_caption}
         </figcaption>
       )}
