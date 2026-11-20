@@ -6,13 +6,10 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Moon,
   PenSquare,
-  Sun,
   X,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../hooks/useTheme";
 import { ToastProvider } from "./Toast";
 
 const NAV = [
@@ -22,7 +19,6 @@ const NAV = [
 
 const AdminLayout = ({ children }) => {
   const { user, signOut } = useAuth();
-  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -67,10 +63,6 @@ const AdminLayout = ({ children }) => {
         <p className="truncate text-[13px] font-semibold text-ink">{user?.user_metadata?.full_name || user?.email?.split("@")[0]}</p>
         <p className="truncate text-[12px] text-ink-3">{user?.email}</p>
         <div className="mt-3 flex gap-2">
-          <button onClick={toggle} className="btn btn-secondary btn-sm flex-1">
-            {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-            {theme === "dark" ? "Light" : "Dark"}
-          </button>
           <button
             onClick={async () => {
               await signOut();
@@ -86,6 +78,7 @@ const AdminLayout = ({ children }) => {
   );
 
   return (
+    <div className="theme-light min-h-screen bg-paper text-ink">
     <ToastProvider>
       <div className="min-h-screen bg-paper">
         <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-line bg-surface lg:block">{sidebar}</aside>
@@ -110,6 +103,7 @@ const AdminLayout = ({ children }) => {
         </div>
       </div>
     </ToastProvider>
+    </div>
   );
 };
 

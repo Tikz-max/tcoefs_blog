@@ -2,12 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 
 const KEY = "tcoefs-theme";
 
+// The site is dark by default (aurora look); light is the alternative.
 const current = () =>
-  document.documentElement.getAttribute("data-theme") === "dark"
-    ? "dark"
-    : "light";
+  document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
 
-/** Light and dark theme, saved on the device. */
+/** Dark and light theme, saved on the device. */
 export function useTheme() {
   const [theme, setTheme] = useState(current);
 
@@ -18,9 +17,9 @@ export function useTheme() {
   }, []);
 
   const toggle = useCallback(() => {
-    const next = current() === "dark" ? "light" : "dark";
-    if (next === "dark") {
-      document.documentElement.setAttribute("data-theme", "dark");
+    const next = current() === "light" ? "dark" : "light";
+    if (next === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
     } else {
       document.documentElement.removeAttribute("data-theme");
     }

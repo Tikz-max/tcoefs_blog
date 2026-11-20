@@ -2,9 +2,9 @@ import { useState } from "react";
 import ContourArt from "./ContourArt";
 
 /**
- * Story image at a fixed ratio. When an image is missing or broken the tile
- * falls back to deep green with contour artwork and the topic name, so the
- * layout never shows an empty hole.
+ * Story image at a fixed ratio with soft rounded corners. When an image is
+ * missing or broken the tile falls back to an emerald gradient with contour
+ * artwork and the topic name, so the layout never shows an empty hole.
  */
 const Cover = ({
   src,
@@ -13,7 +13,7 @@ const Cover = ({
   className = "",
   zoom = true,
   eager = false,
-  rounded = "rounded-[2px]",
+  rounded = "rounded-[20px]",
   label = "",
   imgClass = "",
 }) => {
@@ -35,10 +35,13 @@ const Cover = ({
           className={`absolute inset-0 h-full w-full object-cover ${zoom ? "tile-img" : ""} ${imgClass}`}
         />
       ) : (
-        <div className="absolute inset-0 flex items-end bg-band-2 p-5">
-          <ContourArt className="absolute inset-0 h-full w-full text-white/[0.12]" />
+        <div
+          className="absolute inset-0 flex items-end p-5"
+          style={{ background: "linear-gradient(135deg, #0f9f6e 0%, #0a5c43 45%, #082016 100%)" }}
+        >
+          <ContourArt className="absolute inset-0 h-full w-full text-white/[0.16]" />
           {label && (
-            <span className="relative font-serif text-[clamp(22px,2.6vw,34px)] font-bold italic leading-none text-white/85">
+            <span className="relative font-serif text-[clamp(20px,2.4vw,30px)] font-bold leading-none tracking-[-0.03em] text-white/90">
               {label}
             </span>
           )}
