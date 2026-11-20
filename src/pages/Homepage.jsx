@@ -1,160 +1,169 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, SearchX } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Search, SearchX } from "lucide-react";
 import SiteHeader from "../components/site/SiteHeader";
 import SiteFooter from "../components/site/SiteFooter";
 import Reveal from "../components/site/Reveal";
 import ContourArt from "../components/site/ContourArt";
 import SplitWords from "../components/site/SplitWords";
-import Ticker from "../components/site/Ticker";
+import Cover from "../components/site/Cover";
 import {
-  ArticleCard,
-  ArticleFeature,
+  ArticleBentoLead,
+  ArticleBentoPhoto,
+  ArticleBentoText,
   ArticleListItem,
-  ArticleRow,
+  Kicker,
+  Meta,
 } from "../components/site/ArticleCard";
 import { articlesApi } from "../lib/articles";
 import {
   CATEGORIES,
   MAIN_SITE_URL,
-  ORG_NAME,
-  articleDate,
   categorySlug,
   findCategory,
   normaliseTags,
   stripHtml,
 } from "../lib/content";
 import { useCountUp } from "../hooks/useCountUp";
-import { useParallax } from "../hooks/useParallax";
 import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 const PAGE_SIZE = 9;
 
-/* ------------------------------------------------------------------ Hero */
+/* ------------------------------------------------------------ Hero */
 
-const Hero = ({ lead }) => {
-  const ref = useRef(null);
-  useParallax(ref);
+const FloatingStory = ({ article, className, rotate }) => (
+  <Link
+    to={`/news/${article.id}`}
+    className={`glass lift group absolute hidden w-[250px] rounded-[26px] p-3 xl:block ${className}`}
+    style={{ transform: `rotate(${rotate}deg)` }}
+  >
+    <Cover src={article.card_image_url} alt="" ratio="16 / 10" label={article.category} rounded="rounded-[18px]" />
+    <p className="mt-3 line-clamp-2 px-1 font-serif text-[15.5px] font-bold leading-[1.2] tracking-[-0.02em] text-white">
+      {article.title}
+    </p>
+    <p className="mb-1 mt-1.5 px-1 text-[12.5px] text-white/60">{article.category}</p>
+  </Link>
+);
 
-  // Long headlines step down so they never overwhelm the photograph.
-  const length = lead.title.length;
-  const size =
-    length > 85
-      ? "clamp(2.1rem, 5vw, 4.9rem)"
-      : length > 55
-        ? "clamp(2.4rem, 6.2vw, 6.2rem)"
-        : undefined;
+const Hero = ({ lead, floating, counts, onSearch }) => (
+  <section className="grain relative isolate overflow-hidden bg-band text-white">
+    <div className="aurora" aria-hidden="true">
+      <i />
+      <i />
+      <i />
+    </div>
+    <ContourArt className="pointer-events-none absolute inset-0 h-full w-full text-white/[0.05]" />
 
-  return (
-    <section
-      ref={ref}
-      className="grain relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-band text-white"
-    >
-      {lead.card_image_url ? (
-        <img
-          src={lead.card_image_url}
-          alt=""
-          fetchPriority="high"
-          decoding="async"
-          className="hero-image absolute inset-0 -z-20 h-full w-full object-cover"
-        />
-      ) : (
-        <ContourArt className="absolute inset-0 -z-20 h-full w-full text-white/[0.14]" />
+    {floating[0] && <FloatingStory article={floating[0]} className="left-[2.5%] top-[60%] animate-float" rotate={-4} />}
+    {floating[1] && <FloatingStory article={floating[1]} className="right-[2.5%] top-[57%] animate-float [animation-delay:-3s]" rotate={3} />}
+
+    <div className="container-page relative flex min-h-[88svh] flex-col items-center justify-center pb-24 pt-36 text-center">
+      {lead && (
+        <Link
+          to={`/news/${lead.id}`}
+          className="fade-up glass nudge inline-flex max-w-full items-center gap-3 rounded-full py-2 pl-3 pr-4 text-[13.5px] text-white/90"
+          style={{ "--d": 0 }}
+        >
+          <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-fill opacity-70" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand-fill" />
+          </span>
+          <span className="truncate">
+            <span className="font-medium text-white">New:</span> {lead.title}
+          </span>
+          <ArrowRight size={14} className="shrink-0" />
+        </Link>
       )}
-      {/* Green tint and legibility gradients over the photograph */}
-      <div className="absolute inset-0 -z-10 bg-band/45 mix-blend-multiply" aria-hidden="true" />
-      <div
-        className="absolute inset-0 -z-10"
-        aria-hidden="true"
-        style={{
-          background:
-            "linear-gradient(to top, rgb(11 36 23) 3%, rgb(11 36 23 / 0.78) 34%, rgb(11 36 23 / 0.28) 68%, rgb(11 36 23 / 0.5) 100%)",
-        }}
-      />
 
-      <div className="container-page relative pb-14 pt-44 md:pb-20">
-        <p className="fade-up eyebrow-mono flex items-center gap-3 text-white/85" style={{ "--d": 0 }}>
-          <span className="h-px w-10 bg-brand-fill" aria-hidden="true" />
-          Featured story
-          <span className="text-white/45" aria-hidden="true">/</span>
-          {lead.category}
-        </p>
+      <h1 className="display-hero mt-9 max-w-[19ch]" aria-label="Evidence and stories for a food-secure Africa">
+        <SplitWords text="Evidence and stories for a" />{" "}
+        <SplitWords text="food-secure" wordClass="gradient-text" start={5} />{" "}
+        <SplitWords text="Africa" start={6} />
+      </h1>
 
-        <h1 className="mt-6">
-          <Link
-            to={`/news/${lead.id}`}
-            aria-label={lead.title}
-            className="display-hero block max-w-[17ch] focus-visible:outline-white"
-            style={size ? { fontSize: size, maxWidth: "20ch" } : undefined}
-          >
-            <SplitWords text={lead.title} as="span" />
-          </Link>
-        </h1>
-
-        <div className="mt-9 grid gap-8 md:grid-cols-12 md:items-end">
-          {lead.excerpt && (
-            <p
-              className="fade-up line-clamp-3 max-w-[56ch] font-text text-[18px] leading-[1.55] text-white/85 md:col-span-7 md:text-[21px]"
-              style={{ "--d": 7 }}
-            >
-              {lead.excerpt}
-            </p>
-          )}
-          <div className="fade-up flex flex-wrap items-center gap-x-6 gap-y-4 md:col-span-5 md:justify-end" style={{ "--d": 8 }}>
-            <span className="mono text-[13px] text-white/70">
-              {articleDate(lead, { short: true })}
-              {lead.read_time ? ` / ${lead.read_time}` : ""}
-            </span>
-            <Link to={`/news/${lead.id}`} className="btn btn-primary nudge !h-14 !px-8 text-[16px]">
-              Read the story <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="fade-up pointer-events-none absolute bottom-6 right-6 hidden items-center gap-3 md:flex" style={{ "--d": 10 }} aria-hidden="true">
-        <span className="eyebrow-mono !text-[11px] text-white/55 [writing-mode:vertical-rl]">Scroll</span>
-        <span className="relative block h-16 w-px overflow-hidden bg-white/25">
-          <span className="absolute inset-x-0 top-0 h-6 animate-[scrollcue_2.2s_ease-in-out_infinite] bg-white" />
-        </span>
-      </div>
-    </section>
-  );
-};
-
-/* ------------------------------------------------------------- Pieces */
-
-const BigStat = ({ value, label, animate = true }) => {
-  const [ref, counted] = useCountUp(value);
-  return (
-    <div className="border-t border-ink pt-5">
-      <p
-        ref={ref}
-        className="font-serif text-[clamp(3.6rem,8vw,7.5rem)] font-extrabold leading-[0.9] tracking-[-0.04em] tabular-nums text-ink"
-      >
-        {animate ? counted : value}
+      <p className="fade-up mt-8 max-w-[58ch] text-[19px] leading-[1.55] text-white/75 md:text-[21px]" style={{ "--d": 8 }}>
+        Research, training and partnership updates from the TETFund Centre of Excellence in Food Security, University of Jos.
       </p>
-      <p className="eyebrow-mono mt-4 text-ink-3">{label}</p>
+
+      <form onSubmit={onSearch} role="search" className="fade-up glass mt-10 flex w-full max-w-[580px] items-center gap-2 rounded-full p-2 pl-6" style={{ "--d": 9 }}>
+        <Search size={19} className="shrink-0 text-white/60" aria-hidden="true" />
+        <input
+          name="q"
+          placeholder="Search stories"
+          aria-label="Search stories"
+          className="h-12 w-full bg-transparent text-[16px] text-white outline-none placeholder:text-white/50"
+        />
+        <button type="submit" className="btn btn-primary !h-12 !px-7 text-[15px]">Search</button>
+      </form>
+
+      <ul className="fade-up mt-8 flex flex-wrap justify-center gap-2.5" style={{ "--d": 10 }} aria-label="Browse by topic">
+        {CATEGORIES.map((c) => (
+          <li key={c.slug}>
+            <Link
+              to={`/?topic=${c.slug}`}
+              className="glass inline-flex min-h-[44px] items-center gap-2.5 rounded-full px-5 text-[14.5px] font-medium text-white transition-colors hover:bg-white/15"
+            >
+              {c.name}
+              <span className="text-[12.5px] tabular-nums text-white/55">{counts[c.slug] || 0}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+);
+
+/* ------------------------------------------------------------- Bits */
+
+const StatTile = ({ value }) => {
+  const [ref, n] = useCountUp(value);
+  return (
+    <div
+      className="bento-tile flex min-h-[220px] flex-col justify-between p-7 text-[color:var(--c-on-cta)]"
+      style={{ background: "linear-gradient(135deg, #b6f23a 0%, #34d399 100%)" }}
+    >
+      <ContourArt className="absolute inset-0 -z-10 h-full w-full text-black/[0.08]" />
+      <p className="font-serif text-[13px] font-medium uppercase tracking-[0.14em]">Library</p>
+      <div>
+        <p ref={ref} className="font-serif text-[clamp(4.5rem,8vw,7rem)] font-bold leading-[0.9] tracking-[-0.05em] tabular-nums">{n}</p>
+        <p className="mt-2 text-[17px] font-medium">Stories published</p>
+      </div>
     </div>
   );
 };
 
-const SectionHead = ({ number, title, action }) => (
-  <div className="flex items-end justify-between gap-6 border-t border-ink pt-5">
-    <div className="flex items-baseline gap-5">
-      <span className="mono text-[13px] text-ink-3" aria-hidden="true">{number}</span>
-      <h2 className="display-lg !text-[clamp(2rem,4.4vw,3.8rem)]">{title}</h2>
-    </div>
+const SectionHead = ({ title, action }) => (
+  <div className="flex items-end justify-between gap-6">
+    <h2 className="display-lg !text-[clamp(1.9rem,3.6vw,3.2rem)]">{title}</h2>
     {action}
   </div>
 );
 
+const Rail = ({ items }) => {
+  const ref = useRef(null);
+  const by = (dir) => ref.current?.scrollBy({ left: dir * 380, behavior: "smooth" });
+  return (
+    <div>
+      <div className="mb-5 flex justify-end gap-2">
+        <button onClick={() => by(-1)} className="icon-btn glass-solid !h-12 !w-12" aria-label="Scroll back"><ChevronLeft size={20} /></button>
+        <button onClick={() => by(1)} className="icon-btn glass-solid !h-12 !w-12" aria-label="Scroll forward"><ChevronRight size={20} /></button>
+      </div>
+      <div ref={ref} className="hscroll -mx-5 px-5 md:-mx-8 md:px-8" tabIndex={0} aria-label="More stories">
+        {items.map((a) => (
+          <ArticleBentoPhoto key={a.id} article={a} className="h-[440px] w-[300px] sm:w-[340px]" />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const HomeSkeleton = () => (
-  <div className="min-h-screen bg-band" aria-busy="true" aria-label="Loading stories">
-    <div className="container-page flex min-h-[80vh] flex-col justify-end pb-20">
-      <div className="skeleton !bg-white/10 h-4 w-40" />
-      <div className="skeleton !bg-white/10 mt-6 h-16 w-3/4" />
-      <div className="skeleton !bg-white/10 mt-4 h-16 w-1/2" />
+  <div className="relative min-h-screen overflow-hidden bg-band" aria-busy="true" aria-label="Loading stories">
+    <div className="aurora" aria-hidden="true"><i /><i /><i /></div>
+    <div className="container-page relative flex min-h-[80vh] flex-col items-center justify-center gap-5">
+      <div className="skeleton !bg-white/10 h-8 w-64 !rounded-full" />
+      <div className="skeleton !bg-white/10 h-20 w-full max-w-[860px]" />
+      <div className="skeleton !bg-white/10 h-20 w-2/3 max-w-[560px]" />
     </div>
   </div>
 );
@@ -220,17 +229,19 @@ const Homepage = () => {
 
   const lead = articles.find((a) => a.featured) || articles[0];
   const rest = articles.filter((a) => a.id !== lead?.id);
-  const [first, second, third, fourth, ...more] = rest;
-  const since = useMemo(() => {
-    const years = articles
-      .map((a) => Number(String(a.published_date || a.date).slice(0, 4)))
-      .filter(Boolean);
-    return years.length ? Math.min(...years) : new Date().getFullYear();
-  }, [articles]);
+  const [textStory, photoA, photoB, ...more] = rest;
+
+  const onSearch = (e) => {
+    e.preventDefault();
+    const q = new FormData(e.currentTarget).get("q")?.toString().trim();
+    if (q) setParams({ q });
+  };
+
+  const front = !loading && !failed && !filtering && articles.length > 0;
 
   return (
     <div className="min-h-screen bg-paper">
-      <SiteHeader overlay={!loading && !failed && !filtering && articles.length > 0} />
+      <SiteHeader overlay={front} />
 
       {loading ? (
         <HomeSkeleton />
@@ -242,43 +253,46 @@ const Homepage = () => {
         </div>
       ) : filtering ? (
         /* ------------------------------ Archive ------------------------------ */
-        <main id="main" tabIndex={-1} className="container-page pb-8 pt-14 focus:outline-none md:pt-20">
-          <nav className="mono flex items-center gap-2 text-[12.5px] text-ink-3" aria-label="Breadcrumb">
+        <main id="main" tabIndex={-1} className="container-page pb-8 pt-8 focus:outline-none md:pt-14">
+          <nav className="flex items-center gap-2 text-[13.5px] text-ink-3" aria-label="Breadcrumb">
             <Link to="/" className="hover:text-ink hover:underline">Blog</Link>
             <span aria-hidden="true">/</span>
             <span className="text-ink-2">{topic ? topic.name : tag ? "Tag" : "Search"}</span>
           </nav>
 
-          <header className="mt-6 border-b border-ink pb-10">
-            <h1 className="display-xl !text-[clamp(2.8rem,9vw,8rem)]">
-              {topic && !query && !tag ? topic.name : tag && !query ? tag : `“${query}”`}
-            </h1>
-            {topic && !query && (
-              <p className="mt-5 max-w-[48ch] font-text text-[22px] italic leading-[1.4] text-ink-2">{topic.blurb}</p>
-            )}
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <span className="mono mr-1 text-[13px] text-ink-3">
-                {results.length} {results.length === 1 ? "story" : "stories"}
-              </span>
-              {query && topic && <span className="chip">{topic.name}</span>}
-              {(query || tag) && (
-                <button onClick={() => setParams({})} className="chip min-h-[44px] hover:bg-muted">Clear</button>
-              )}
-              <label className="mono ml-auto flex items-center gap-2 text-[13px] text-ink-3">
-                Sort
-                <select value={sort} onChange={(e) => setSort(e.target.value)} className="field !h-11 !w-auto !py-0 pr-9">
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                </select>
-              </label>
+          <header className="relative mt-6 overflow-hidden rounded-[36px] border border-line bg-band px-7 py-14 text-white md:px-14 md:py-20">
+            <div className="aurora" aria-hidden="true"><i /><i /><i /></div>
+            <div className="relative">
+              <h1 className="display-xl !text-[clamp(2.8rem,8vw,7rem)]">
+                <span className="gradient-text">
+                  {topic && !query && !tag ? topic.name : tag && !query ? tag : `“${query}”`}
+                </span>
+              </h1>
+              {topic && !query && <p className="mt-5 max-w-[50ch] text-[20px] leading-[1.5] text-white/75">{topic.blurb}</p>}
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <span className="glass rounded-full px-4 py-2 text-[13.5px] text-white/85">
+                  {results.length} {results.length === 1 ? "story" : "stories"}
+                </span>
+                {query && topic && <span className="glass rounded-full px-4 py-2 text-[13.5px] text-white/85">{topic.name}</span>}
+                {(query || tag) && (
+                  <button onClick={() => setParams({})} className="glass min-h-[44px] rounded-full px-5 text-[13.5px] text-white hover:bg-white/15">Clear</button>
+                )}
+                <label className="ml-auto flex items-center gap-2 text-[13.5px] text-white/70">
+                  Sort
+                  <select value={sort} onChange={(e) => setSort(e.target.value)} className="field !h-11 !w-auto !bg-white/10 !py-0 pr-9 !text-white">
+                    <option value="newest" className="text-black">Newest first</option>
+                    <option value="oldest" className="text-black">Oldest first</option>
+                  </select>
+                </label>
+              </div>
             </div>
           </header>
 
-          <div className="grid gap-14 pt-12 lg:grid-cols-12">
-            <div className="lg:col-span-8">
+          <div className="grid gap-12 pt-12 lg:grid-cols-12">
+            <div className="space-y-6 lg:col-span-8">
               {results.length === 0 ? (
-                <div className="py-14">
-                  <SearchX size={36} className="text-ink-3" />
+                <div className="glass-solid rounded-[28px] p-12 text-center">
+                  <SearchX size={36} className="mx-auto text-ink-3" />
                   <h2 className="display-lg mt-5">No stories found</h2>
                   <p className="mt-3 text-ink-2">Try a different search term, or browse the latest stories.</p>
                   <Link to="/" className="btn btn-primary mt-7">Browse latest</Link>
@@ -286,35 +300,32 @@ const Homepage = () => {
               ) : (
                 <>
                   {results.slice(0, visible).map((a, i) => (
-                    <Reveal key={a.id}>
-                      <ArticleListItem article={a} index={i + 1} />
+                    <Reveal key={a.id} index={i % 3}>
+                      <ArticleListItem article={a} />
                     </Reveal>
                   ))}
                   {results.length > visible && (
-                    <div className="pt-10">
-                      <button onClick={() => setVisible((v) => v + PAGE_SIZE)} className="btn btn-secondary border border-ink">
-                        Show more stories
-                      </button>
+                    <div className="pt-4">
+                      <button onClick={() => setVisible((v) => v + PAGE_SIZE)} className="btn glass !h-12 !px-8 text-ink">Show more stories</button>
                     </div>
                   )}
                 </>
               )}
             </div>
-
-            <aside className="lg:col-span-4 lg:pl-8">
-              <div className="lg:sticky lg:top-28">
+            <aside className="lg:col-span-4">
+              <div className="glass-solid rounded-[28px] p-6 lg:sticky lg:top-28">
                 <p className="eyebrow-mono text-ink-3">Browse by topic</p>
                 <ul className="mt-4">
                   {CATEGORIES.map((c) => (
                     <li key={c.slug}>
                       <Link
                         to={`/?topic=${c.slug}`}
-                        className={`flex items-baseline justify-between border-b border-line py-4 font-serif text-[26px] font-bold hover:text-brand ${
+                        className={`flex items-center justify-between border-b border-line py-4 font-serif text-[22px] font-bold tracking-[-0.03em] last:border-0 hover:text-brand ${
                           topic?.slug === c.slug ? "text-brand" : "text-ink"
                         }`}
                       >
                         {c.name}
-                        <span className="mono text-[13px] font-normal text-ink-3">{counts[c.slug] || 0}</span>
+                        <span className="rounded-full bg-muted px-3 py-1 font-sans text-[12.5px] font-normal text-ink-3">{counts[c.slug] || 0}</span>
                       </Link>
                     </li>
                   ))}
@@ -331,120 +342,77 @@ const Homepage = () => {
       ) : (
         /* ----------------------------- Front page ---------------------------- */
         <main id="main" tabIndex={-1} className="focus:outline-none">
-          <Hero lead={lead} />
-          <Ticker items={articles.slice(0, 10)} />
+          <Hero lead={lead} floating={[photoA, photoB]} counts={counts} onSearch={onSearch} />
 
-          {/* Manifesto */}
-          <section className="container-page py-24 md:py-40">
-            <div className="grid gap-10 md:grid-cols-12">
-              <p className="eyebrow-mono text-ink-3 md:col-span-3 md:pt-4">About this blog</p>
-              <Reveal className="md:col-span-9">
-                <p className="display-lg !font-bold !text-[clamp(1.9rem,4.1vw,3.8rem)] !leading-[1.08]">
-                  Stories, research and training updates from the {ORG_NAME} at the University of
-                  Jos:{" "}
-                  <em className="font-medium text-brand">evidence, in plain language, for a food-secure Africa.</em>
-                </p>
+          {/* Bento: lead story as a cinematic photo tile */}
+          <section className="container-page -mt-10 pb-8 md:-mt-14">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-[310px_310px]">
+              <Reveal className="md:col-span-2 lg:row-span-2">
+                <ArticleBentoLead article={lead} className="h-full min-h-[480px]" />
               </Reveal>
-            </div>
-            <div className="mt-20 grid gap-10 sm:grid-cols-3 md:mt-28">
-              <Reveal><BigStat value={articles.length} label="Stories published" /></Reveal>
-              <Reveal index={1}><BigStat value={CATEGORIES.length} label="Topics covered" /></Reveal>
-              <Reveal index={2}><BigStat value={since} label="Publishing since" animate={false} /></Reveal>
-            </div>
-          </section>
-
-          {/* Latest: asymmetric editorial grid */}
-          <section className="container-page pb-8 md:pb-16">
-            <SectionHead
-              number="01"
-              title="Latest"
-              action={
-                <Link to="/?topic=news" className="nudge hidden items-center gap-1.5 pb-2 font-mono text-[13px] uppercase tracking-[0.12em] text-ink-2 hover:text-ink sm:inline-flex">
-                  Browse topics <ArrowRight size={14} />
-                </Link>
-              }
-            />
-
-            {first && (
-              <div className="mt-12 grid gap-x-12 gap-y-14 lg:grid-cols-12">
-                <Reveal className="lg:col-span-7">
-                  <ArticleFeature article={first} index={1} />
+              <Reveal index={1}><StatTile value={articles.length} /></Reveal>
+              {textStory && (
+                <Reveal index={2} className="lg:h-full">
+                  <ArticleBentoText article={textStory} className="h-full" />
                 </Reveal>
-                <div className="flex flex-col gap-12 lg:col-span-5 lg:border-l lg:border-line lg:pl-12">
-                  {second && (
-                    <Reveal index={1}>
-                      <ArticleRow article={second} index={2} />
-                    </Reveal>
-                  )}
-                  {third && (
-                    <Reveal index={2} className="border-t border-line pt-12">
-                      <ArticleRow article={third} index={3} />
-                    </Reveal>
-                  )}
-                  {fourth && (
-                    <Reveal index={3} className="border-t border-line pt-12">
-                      <ArticleRow article={fourth} index={4} />
-                    </Reveal>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {more.length > 0 && (
-              <>
-                <div className="mt-20 grid gap-x-10 gap-y-16 border-t border-line pt-14 sm:grid-cols-2 lg:grid-cols-3">
-                  {more.slice(0, visible - 3 > 0 ? visible - 3 : 6).map((a, i) => (
-                    <Reveal key={a.id} index={i % 3}>
-                      <ArticleCard article={a} index={i + 5} />
-                    </Reveal>
-                  ))}
-                </div>
-                {more.length > (visible - 3 > 0 ? visible - 3 : 6) && (
-                  <div className="pt-14 text-center">
-                    <button onClick={() => setVisible((v) => v + PAGE_SIZE)} className="btn btn-secondary border border-ink !h-12 !px-8">
-                      Show more stories
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
+              )}
+              {photoA && (
+                <Reveal index={3} className="lg:h-full">
+                  <ArticleBentoPhoto article={photoA} className="h-full min-h-[260px]" />
+                </Reveal>
+              )}
+              {photoB && (
+                <Reveal index={4} className="lg:h-full">
+                  <ArticleBentoPhoto article={photoB} className="h-full min-h-[260px]" />
+                </Reveal>
+              )}
+            </div>
           </section>
+
+          {/* More stories: horizontal photo rail */}
+          {more.length > 0 && (
+            <section className="container-page pt-20 md:pt-28">
+              <SectionHead title="More stories" />
+              <Reveal className="mt-8">
+                <Rail items={more} />
+              </Reveal>
+            </section>
+          )}
 
           {/* Topics */}
-          <section className="overflow-hidden pt-20 md:pt-32">
-            <div className="container-page">
-              <SectionHead number="02" title="Topics" />
-              <ul className="mt-10 border-t border-ink">
-                {CATEGORIES.map((c, i) => (
-                  <li key={c.slug}>
-                    <Link
-                      to={`/?topic=${c.slug}`}
-                      className="row-link grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-4 border-b border-line py-7 md:grid-cols-[72px_minmax(0,1fr)_minmax(0,320px)_auto] md:py-10"
-                    >
-                      <span className="mono text-[13px] opacity-60">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="display-xl !text-[clamp(2.3rem,6.4vw,6rem)] !leading-[0.95]">{c.name}</span>
-                      <span className="hidden text-[15px] leading-[1.45] opacity-70 md:block">{c.blurb}</span>
-                      <span className="mono flex items-center gap-3 text-[13px] opacity-80">
-                        {counts[c.slug] || 0}
-                        <ArrowUpRight size={22} aria-hidden="true" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          <section className="container-page pt-20 md:pt-28">
+            <SectionHead title="Explore by topic" />
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {CATEGORIES.map((c, i) => (
+                <Reveal key={c.slug} index={i}>
+                  <Link
+                    to={`/?topic=${c.slug}`}
+                    className="glass-solid lift group relative flex h-full min-h-[260px] flex-col overflow-hidden rounded-[28px] p-7"
+                  >
+                    <span className="mb-auto flex items-center justify-between">
+                      <Kicker category={c.name} />
+                      <span className="text-[13.5px] tabular-nums text-ink-3">{counts[c.slug] || 0} {(counts[c.slug] || 0) === 1 ? "story" : "stories"}</span>
+                    </span>
+                    <span className="display-lg mt-10 !text-[clamp(2rem,3vw,2.8rem)]">{c.name}</span>
+                    <span className="mt-3 text-[15px] leading-[1.5] text-ink-2">{c.blurb}</span>
+                    <span className="absolute bottom-6 right-6 flex h-11 w-11 items-center justify-center rounded-full bg-brand-fill text-[color:var(--c-on-cta)] opacity-0 transition-all duration-300 group-hover:opacity-100 sm:translate-y-2 sm:group-hover:translate-y-0" aria-hidden="true">
+                      <ArrowUpRight size={20} />
+                    </span>
+                  </Link>
+                </Reveal>
+              ))}
             </div>
           </section>
 
           {/* Closing */}
-          <section className="container-page pt-24 md:pt-36">
-            <Reveal className="grain relative overflow-hidden bg-band px-7 py-16 text-white md:px-16 md:py-24">
-              <ContourArt className="pointer-events-none absolute inset-0 h-full w-full text-white/[0.09]" />
+          <section className="container-page pt-20 md:pt-28">
+            <Reveal className="grain relative isolate overflow-hidden rounded-[36px] border border-line bg-band px-7 py-16 text-white md:px-16 md:py-24">
+              <div className="aurora" aria-hidden="true"><i /><i /><i /></div>
               <div className="relative grid gap-10 md:grid-cols-12 md:items-end">
                 <div className="md:col-span-8">
                   <p className="eyebrow-mono text-white/60">About the Centre</p>
                   <p className="display-lg mt-5 !text-[clamp(1.9rem,4vw,3.6rem)]">
-                    Strengthening food systems through{" "}
-                    <em className="font-medium text-brand-fill">research, training and partnership.</em>
+                    Strengthening food systems through <span className="gradient-text">research, training and partnership.</span>
                   </p>
                 </div>
                 <div className="md:col-span-4 md:text-right">

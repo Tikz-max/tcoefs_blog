@@ -18,7 +18,7 @@ import { useTheme } from "../../hooks/useTheme";
 import AuthModal from "../auth/AuthModal";
 import SearchPalette from "./SearchPalette";
 
-const AccountMenu = ({ onSignIn, onDark = false }) => {
+const AccountMenu = ({ onSignIn }) => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const [open, setOpen] = useState(false);
@@ -40,7 +40,7 @@ const AccountMenu = ({ onSignIn, onDark = false }) => {
 
   if (!user) {
     return (
-      <button onClick={onSignIn} className={`icon-btn ${onDark ? "!text-white hover:!bg-white/15" : ""}`} aria-label="Sign in">
+      <button onClick={onSignIn} className="icon-btn" aria-label="Sign in">
         <User size={18} />
       </button>
     );
@@ -61,7 +61,7 @@ const AccountMenu = ({ onSignIn, onDark = false }) => {
         </span>
       </button>
       {open && (
-        <div className="animate-fade absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-lg border border-line bg-surface shadow-[var(--shadow-pop)]">
+        <div className="animate-fade absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-pop)]">
           <div className="border-b border-line px-4 py-3">
             <p className="truncate text-sm font-bold text-ink">{name}</p>
             <p className="truncate text-xs text-ink-3">{user.email}</p>
@@ -97,7 +97,6 @@ const SiteHeader = ({ overlay = false }) => {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const onDark = overlay && !scrolled && !menuOpen;
   const activeTopic = params.get("topic");
   const onLatest = pathname === "/" && !activeTopic && !params.get("q");
 
@@ -132,40 +131,31 @@ const SiteHeader = ({ overlay = false }) => {
   }, []);
 
   const topicClass = (active) =>
-    `relative flex min-h-[44px] items-center px-1 text-[13px] font-medium uppercase tracking-[0.12em] transition-colors font-mono ${
-      active
-        ? "after:absolute after:inset-x-0 after:bottom-1 after:h-[2px] after:bg-brand-fill"
-        : onDark
-          ? "text-white/75 hover:text-white"
-          : "text-ink-2 hover:text-ink"
-    } ${active && onDark ? "text-white" : ""} ${active && !onDark ? "text-ink" : ""}`;
+    `flex h-10 items-center rounded-full px-4 text-[14.5px] font-medium transition-colors ${
+      active ? "bg-brand-fill text-[color:var(--c-on-cta)]" : "text-ink-2 hover:bg-muted hover:text-ink"
+    }`;
 
   return (
     <>
       <a href="#main" className="skip-link">Skip to main content</a>
 
-      <header
-        className={`no-print z-40 border-b transition-[background-color,border-color,box-shadow,color] duration-500 ${
-          overlay ? "fixed inset-x-0 top-0" : "sticky top-0"
-        } ${
-          onDark
-            ? "border-white/15 bg-transparent text-white"
-            : "border-line bg-paper/90 text-ink shadow-[0_8px_30px_-18px_rgb(13_37_24/0.35)] backdrop-blur-md"
-        }`}
-      >
-        <div className="container-page flex h-[76px] items-center justify-between gap-6">
-          <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="TCoEFS Blog home">
-            <span className={`flex h-11 w-11 items-center justify-center rounded-full p-1.5 transition-colors duration-500 ${onDark ? "bg-white" : "bg-surface ring-1 ring-line"}`}>
+      {!overlay && <div className="h-[92px]" aria-hidden="true" />}
+      <header className={`no-print fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-5 sm:pt-4`}>
+        <div
+          className={`glass mx-auto flex h-[60px] max-w-[1180px] items-center justify-between gap-4 rounded-full pl-3 pr-2 transition-shadow duration-500 ${
+            scrolled ? "shadow-[var(--shadow-card)]" : ""
+          }`}
+        >
+          <Link to="/" className="flex shrink-0 items-center gap-2.5 rounded-full pr-2" aria-label="TCoEFS Blog home">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white p-1.5">
               <img src="/tcoefs-logo.png" alt="" className="h-full w-auto" />
             </span>
-            <span className="flex flex-col leading-none">
-              <span className="font-serif text-[27px] font-extrabold tracking-[-0.03em]">
-                TCoEFS<span className={`ml-1.5 font-medium italic ${onDark ? "text-white/75" : "text-brand"}`}>Blog</span>
-              </span>
+            <span className="font-serif text-[19px] font-bold tracking-[-0.03em] text-ink">
+              TCoEFS <span className="font-medium text-ink-3">Blog</span>
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-7 lg:flex" aria-label="Topics">
+          <nav className="hidden items-center gap-1 lg:flex" aria-label="Topics">
             <Link to="/" className={topicClass(onLatest)} aria-current={onLatest ? "page" : undefined}>
               Latest
             </Link>
@@ -180,43 +170,37 @@ const SiteHeader = ({ overlay = false }) => {
           </nav>
 
           <div className="flex items-center gap-1">
-            <a
-              href={MAIN_SITE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`nudge mr-2 hidden items-center gap-1 font-mono text-[13px] font-medium uppercase tracking-[0.12em] xl:inline-flex ${onDark ? "text-white/75 hover:text-white" : "text-ink-2 hover:text-ink"}`}
-            >
-              Main site <ArrowUpRight size={13} />
-            </a>
             <button
               onClick={() => setPaletteOpen(true)}
-              className={`hidden h-11 items-center gap-2.5 rounded-full border px-4 text-[14px] transition-colors md:flex ${
-                onDark
-                  ? "border-white/35 text-white/85 hover:border-white hover:text-white"
-                  : "border-line-strong bg-surface text-ink-3 hover:border-ink hover:text-ink"
-              }`}
+              className="hidden h-11 items-center gap-2.5 rounded-full px-4 text-[14px] text-ink-2 transition-colors hover:bg-muted hover:text-ink md:flex"
               aria-label="Search stories"
             >
               <Search size={16} />
               Search
-              <kbd className={`ml-3 hidden rounded px-1.5 py-0.5 font-mono text-[11px] xl:inline ${onDark ? "bg-white/15 text-white/80" : "border border-line bg-muted text-ink-3"}`}>
-                Ctrl K
-              </kbd>
+              <kbd className="ml-1 hidden rounded-md bg-muted px-1.5 py-0.5 font-sans text-[11px] text-ink-3 xl:inline">Ctrl K</kbd>
             </button>
-            <button onClick={() => setPaletteOpen(true)} className={`icon-btn md:hidden ${onDark ? "!text-white hover:!bg-white/15" : ""}`} aria-label="Search stories">
+            <button onClick={() => setPaletteOpen(true)} className="icon-btn md:hidden" aria-label="Search stories">
               <Search size={19} />
             </button>
             <button
               onClick={toggle}
-              className={`icon-btn ${onDark ? "!text-white hover:!bg-white/15" : ""}`}
+              className="icon-btn"
               aria-label={theme === "dark" ? "Use light theme" : "Use dark theme"}
             >
               {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
             </button>
             <div className="hidden lg:block">
-              <AccountMenu onSignIn={() => setAuthOpen(true)} onDark={onDark} />
+              <AccountMenu onSignIn={() => setAuthOpen(true)} />
             </div>
-            <button onClick={() => setMenuOpen(true)} className={`icon-btn lg:hidden ${onDark ? "!text-white hover:!bg-white/15" : ""}`} aria-label="Open menu">
+            <a
+              href={MAIN_SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary nudge ml-1 hidden !h-11 sm:inline-flex"
+            >
+              TCoEFS site <ArrowUpRight size={15} />
+            </a>
+            <button onClick={() => setMenuOpen(true)} className="icon-btn lg:hidden" aria-label="Open menu">
               <Menu size={21} />
             </button>
           </div>
@@ -227,7 +211,7 @@ const SiteHeader = ({ overlay = false }) => {
         <div className="lg:hidden">
           <div className="animate-fade fixed inset-0 z-50 bg-black/45" onClick={() => setMenuOpen(false)} />
           <div
-            className="animate-slide-in fixed inset-y-0 right-0 z-50 flex w-[86%] max-w-[340px] flex-col bg-surface shadow-[var(--shadow-pop)]"
+            className="animate-slide-in fixed inset-y-0 right-0 z-50 flex w-[86%] max-w-[360px] flex-col bg-surface shadow-[var(--shadow-pop)]"
             role="dialog"
             aria-modal="true"
             aria-label="Menu"
@@ -244,13 +228,13 @@ const SiteHeader = ({ overlay = false }) => {
                   setMenuOpen(false);
                   setPaletteOpen(true);
                 }}
-                className="flex h-12 w-full items-center gap-2.5 rounded-md border border-line-strong px-4 text-[15px] text-ink-3"
+                className="flex h-12 w-full items-center gap-2.5 rounded-full border border-line-strong px-5 text-[15px] text-ink-3"
               >
                 <Search size={17} /> Search stories
               </button>
               <p className="mt-7 text-[12px] font-bold uppercase tracking-[0.14em] text-ink-3">Topics</p>
               <nav className="mt-2 flex flex-col">
-                <Link to="/" onClick={() => setMenuOpen(false)} className="border-b border-line py-3.5 font-serif text-[24px] text-ink">
+                <Link to="/" onClick={() => setMenuOpen(false)} className="border-b border-line py-3.5 font-serif text-[26px] font-bold tracking-[-0.03em] text-ink">
                   Latest
                 </Link>
                 {CATEGORIES.map((c) => (
@@ -258,7 +242,7 @@ const SiteHeader = ({ overlay = false }) => {
                     key={c.slug}
                     to={`/?topic=${c.slug}`}
                     onClick={() => setMenuOpen(false)}
-                    className="border-b border-line py-3.5 font-serif text-[24px] text-ink"
+                    className="border-b border-line py-3.5 font-serif text-[26px] font-bold tracking-[-0.03em] text-ink"
                   >
                     {c.name}
                   </Link>

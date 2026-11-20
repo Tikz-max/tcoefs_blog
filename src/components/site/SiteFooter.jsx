@@ -7,12 +7,13 @@ const Heading = ({ children }) => (
 );
 
 const SiteFooter = () => (
-  <footer className="no-print relative mt-28 overflow-hidden bg-band text-white grain">
+  <footer className="no-print relative isolate mt-28 overflow-hidden bg-band text-white grain">
+    <div className="aurora opacity-60" aria-hidden="true"><i /><i /><i /></div>
     <div className="container-page relative z-10 pt-20 md:pt-28">
       <div className="grid gap-14 md:grid-cols-12">
         <div className="md:col-span-6">
-          <p className="max-w-[14ch] font-serif text-[clamp(2.4rem,5vw,4.4rem)] font-extrabold leading-[0.98] tracking-[-0.03em]">
-            Evidence for a <span className="font-medium italic text-brand-fill">food-secure</span> Africa.
+          <p className="max-w-[13ch] font-serif text-[clamp(2.4rem,5vw,4.4rem)] font-bold leading-[0.98] tracking-[-0.045em]">
+            Evidence for a <span className="gradient-text">food-secure</span> Africa.
           </p>
           <div className="mt-10 flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white p-1.5">
@@ -30,11 +31,11 @@ const SiteFooter = () => (
           <Heading>Topics</Heading>
           <ul className="mt-5 space-y-3">
             <li>
-              <Link to="/" className="font-serif text-[22px] font-bold text-white/90 hover:text-brand-fill">Latest</Link>
+              <Link to="/" className="font-serif text-[22px] font-bold tracking-[-0.03em] text-white/90 hover:text-brand-fill">Latest</Link>
             </li>
             {CATEGORIES.map((c) => (
               <li key={c.slug}>
-                <Link to={`/?topic=${c.slug}`} className="font-serif text-[22px] font-bold text-white/90 hover:text-brand-fill">
+                <Link to={`/?topic=${c.slug}`} className="font-serif text-[22px] font-bold tracking-[-0.03em] text-white/90 hover:text-brand-fill">
                   {c.name}
                 </Link>
               </li>
@@ -64,11 +65,11 @@ const SiteFooter = () => (
         </nav>
       </div>
 
-      <div className="mt-20 flex flex-col gap-4 border-t border-white/12 pt-6 text-[13px] text-white/50 sm:flex-row sm:items-center sm:justify-between">
-        <p className="mono">© {new Date().getFullYear()} {ORG_NAME}</p>
+      <div className="mt-20 flex flex-col gap-4 border-t border-white/12 pt-6 text-[13.5px] text-white/50 sm:flex-row sm:items-center sm:justify-between">
+        <p>© {new Date().getFullYear()} {ORG_NAME}</p>
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="mono inline-flex min-h-[44px] items-center gap-1.5 self-start text-white/80 hover:text-white sm:self-auto"
+          className="inline-flex min-h-[44px] items-center gap-1.5 self-start text-white/80 hover:text-white sm:self-auto"
         >
           <ArrowUp size={14} /> Back to top
         </button>

@@ -1,18 +1,20 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   TCoEFS Blog design system (v3: editorial magazine)
+   TCoEFS Blog design system (v4: Aurora Glass with cinematic photography)
    Built from the ui-ux-pro-max style database (see design-system/):
-   style   Editorial Grid / Magazine with Exaggerated Minimalism and Kinetic Typography
-   type    Playfair Display headlines, Source Serif 4 long-form, Inter UI, JetBrains Mono labels
-   colour  Deep farmland green on warm ivory, one harvest-gold accent
+   style   Aurora UI + Bento Box Grid, glass surfaces, cinematic photo cards
+   type    Space Grotesk headlines, DM Sans text and interface
+   colour  Deep emerald with luminous gradients and one lime accent
+   Dark is the default theme. Light is the alternative. The admin always uses
+   the light scope (.theme-light) so the editor stays calm and readable.
    ========================================================================== */
 
 @theme {
-    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --font-serif: "Playfair Display", "Iowan Old Style", Georgia, serif;
-    --font-text: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-serif: "Space Grotesk", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-text: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 
     --color-paper: var(--c-bg);
     --color-surface: var(--c-card);
@@ -41,70 +43,107 @@
     --color-cat-training: var(--c-cat-training);
     --color-cat-partnership: var(--c-cat-partnership);
 
-    --shadow-card: 0 1px 2px rgb(13 37 24 / 0.05), 0 10px 30px rgb(13 37 24 / 0.08);
-    --shadow-pop: 0 4px 12px rgb(13 37 24 / 0.12), 0 24px 56px rgb(13 37 24 / 0.2);
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.2), 0 18px 40px rgb(0 0 0 / 0.28);
+    --shadow-pop: 0 6px 16px rgb(0 0 0 / 0.3), 0 30px 70px rgb(0 0 0 / 0.5);
 }
 
+/* Dark (default) */
 :root {
-    --c-bg: #f6f2e8;
-    --c-card: #fffdf8;
-    --c-muted: #ece6d6;
-    --c-border: #ddd5c1;
-    --c-border-strong: #b7ac90;
+    color-scheme: dark;
+    --c-bg: #03120c;
+    --c-card: #0a2118;
+    --c-muted: #0f2c20;
+    --c-border: rgb(255 255 255 / 0.12);
+    --c-border-strong: rgb(255 255 255 / 0.28);
 
-    --c-fg: #0d2518;
-    --c-fg-2: #3f4b44;
-    --c-fg-3: #5c6860;
+    --c-fg: #eafff3;
+    --c-fg-2: #b6d2c3;
+    --c-fg-3: #86a998;
 
-    --c-primary: #1b6b3a;
-    --c-primary-strong: #12532b;
-    --c-primary-soft: #e4ebd9;
-    --c-cta: #e3a72f;
-    --c-cta-hover: #f0bd52;
-    --c-on-cta: #0d2518;
-    --c-accent: #8a5a00;
-    --c-accent-soft: #f6e7bf;
-    --c-band: #0b2417;
-    --c-band-2: #123524;
+    --c-primary: #b6f23a;
+    --c-primary-strong: #d2ff6a;
+    --c-primary-soft: rgb(182 242 58 / 0.12);
+    --c-cta: #b6f23a;
+    --c-cta-hover: #c9ff55;
+    --c-on-cta: #06210f;
+    --c-accent: #b6f23a;
+    --c-accent-soft: rgb(182 242 58 / 0.14);
+    --c-band: #020b07;
+    --c-band-2: #082016;
+    --c-danger: #ff8d85;
+    --c-danger-soft: rgb(255 141 133 / 0.14);
+
+    --c-glass: rgb(255 255 255 / 0.07);
+    --c-glass-border: rgb(255 255 255 / 0.16);
+
+    --c-cat-news: #34d399;
+    --c-cat-research: #7cb0ff;
+    --c-cat-training: #b6f23a;
+    --c-cat-partnership: #ffab6b;
+}
+
+/* Light, for readers who prefer it, and for the editorial desk */
+:root[data-theme="light"],
+.theme-light {
+    color-scheme: light;
+    --c-bg: #eef8f2;
+    --c-card: #ffffff;
+    --c-muted: #e0efe6;
+    --c-border: #cbe0d3;
+    --c-border-strong: #94b8a5;
+
+    --c-fg: #062a1a;
+    --c-fg-2: #3a5748;
+    --c-fg-3: #557264;
+
+    --c-primary: #0a7a46;
+    --c-primary-strong: #065c34;
+    --c-primary-soft: #dcf2e4;
+    --c-cta: #b6f23a;
+    --c-cta-hover: #a5e226;
+    --c-on-cta: #06210f;
+    --c-accent: #0a7a46;
+    --c-accent-soft: #e4f6c8;
+    --c-band: #04170f;
+    --c-band-2: #0a2a1c;
     --c-danger: #b3261e;
     --c-danger-soft: #fbeae8;
 
-    --c-cat-news: #1b6b3a;
-    --c-cat-research: #1e40af;
-    --c-cat-training: #8a5a00;
-    --c-cat-partnership: #9a3412;
+    --c-glass: rgb(255 255 255 / 0.7);
+    --c-glass-border: rgb(6 42 26 / 0.12);
+
+    --c-cat-news: #0a7a46;
+    --c-cat-research: #1d4ed8;
+    --c-cat-training: #4d7c0f;
+    --c-cat-partnership: #c2410c;
 }
 
-:root[data-theme="dark"] {
-    --c-bg: #07140d;
-    --c-card: #0e2217;
-    --c-muted: #14301f;
-    --c-border: #1f3d2b;
-    --c-border-strong: #33583f;
-
-    --c-fg: #f2ede1;
-    --c-fg-2: #bfc8bd;
-    --c-fg-3: #93a196;
-
-    --c-primary: #6fd699;
-    --c-primary-strong: #9be8b9;
-    --c-primary-soft: #12291a;
-    --c-cta: #e3a72f;
-    --c-cta-hover: #f0bd52;
-    --c-on-cta: #0d2518;
-    --c-accent: #e3a72f;
-    --c-accent-soft: #2b2208;
-    --c-band: #040d08;
-    --c-band-2: #0a1c11;
-    --c-danger: #f2877f;
-    --c-danger-soft: #331a18;
-
-    --c-cat-news: #6fd699;
-    --c-cat-research: #93b4ff;
-    --c-cat-training: #e3a72f;
-    --c-cat-partnership: #f4a582;
-
-    color-scheme: dark;
+/* Re-resolve the aliases inside scoped themes (custom properties that use var()
+   are computed where they are declared, so the scope must redeclare them). */
+.theme-light {
+    --color-paper: var(--c-bg);
+    --color-surface: var(--c-card);
+    --color-muted: var(--c-muted);
+    --color-line: var(--c-border);
+    --color-line-strong: var(--c-border-strong);
+    --color-ink: var(--c-fg);
+    --color-ink-2: var(--c-fg-2);
+    --color-ink-3: var(--c-fg-3);
+    --color-brand: var(--c-primary);
+    --color-brand-strong: var(--c-primary-strong);
+    --color-brand-soft: var(--c-primary-soft);
+    --color-brand-fill: var(--c-cta);
+    --color-brand-fill-hover: var(--c-cta-hover);
+    --color-gold: var(--c-accent);
+    --color-gold-soft: var(--c-accent-soft);
+    --color-danger: var(--c-danger);
+    --color-danger-soft: var(--c-danger-soft);
+    --color-cat-news: var(--c-cat-news);
+    --color-cat-research: var(--c-cat-research);
+    --color-cat-training: var(--c-cat-training);
+    --color-cat-partnership: var(--c-cat-partnership);
+    background: var(--c-bg);
+    color: var(--c-fg);
 }
 
 @layer base {
@@ -169,11 +208,11 @@
 
     /* Small uppercase label used above headlines */
     .kicker {
-        font-family: var(--font-mono);
-        font-size: 11.5px;
+        font-family: var(--font-serif);
+        font-size: 12px;
         line-height: 1;
         font-weight: 500;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--color-cat-news);
     }
@@ -195,7 +234,7 @@
     .headline {
         font-family: var(--font-serif);
         font-weight: 700;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.03em;
         color: var(--color-ink);
         text-wrap: balance;
     }
@@ -229,7 +268,7 @@
         gap: 8px;
         height: 40px;
         padding: 0 16px;
-        border-radius: 6px;
+        border-radius: 999px;
         font-size: 14px;
         font-weight: 600;
         white-space: nowrap;
@@ -296,7 +335,7 @@
         width: 100%;
         height: 42px;
         padding: 0 12px;
-        border-radius: 6px;
+        border-radius: 14px;
         border: 1px solid var(--color-line-strong);
         background: var(--color-surface);
         color: var(--color-ink);
@@ -336,7 +375,7 @@
     .panel {
         background: var(--color-surface);
         border: 1px solid var(--color-line);
-        border-radius: 10px;
+        border-radius: 24px;
     }
 
     .chip {
@@ -429,39 +468,40 @@
 
     /* ======================= Editorial system ======================= */
     .mono {
-        font-family: var(--font-mono);
-        letter-spacing: 0.04em;
+        font-family: var(--font-sans);
+        letter-spacing: 0;
+        font-variant-numeric: tabular-nums;
     }
     .eyebrow-mono {
-        font-family: var(--font-mono);
+        font-family: var(--font-serif);
         font-size: 12px;
         font-weight: 500;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
     }
     /* Oversized hero type: Exaggerated Minimalism */
     .display-hero {
         font-family: var(--font-serif);
-        font-weight: 800;
-        font-size: clamp(2.6rem, 8.6vw, 8.5rem);
-        line-height: 0.94;
-        letter-spacing: -0.035em;
+        font-weight: 700;
+        font-size: clamp(2.5rem, 6.2vw, 6.1rem);
+        line-height: 0.96;
+        letter-spacing: -0.045em;
         text-wrap: balance;
     }
     .display-xl {
         font-family: var(--font-serif);
-        font-weight: 800;
-        font-size: clamp(2.3rem, 5.4vw, 5rem);
-        line-height: 0.98;
-        letter-spacing: -0.03em;
+        font-weight: 700;
+        font-size: clamp(2.3rem, 5.2vw, 4.8rem);
+        line-height: 0.99;
+        letter-spacing: -0.04em;
         text-wrap: balance;
     }
     .display-lg {
         font-family: var(--font-serif);
         font-weight: 700;
         font-size: clamp(1.9rem, 3.4vw, 3.1rem);
-        line-height: 1.04;
-        letter-spacing: -0.025em;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
         text-wrap: balance;
     }
 
@@ -538,7 +578,7 @@
     }
     .row-link:hover,
     .row-link:focus-visible {
-        color: #f6f2e8;
+        color: #eafff3;
         padding-left: 18px;
     }
 
@@ -574,12 +614,12 @@
     /* Giant footer wordmark */
     .wordmark {
         font-family: var(--font-serif);
-        font-weight: 900;
+        font-weight: 700;
         font-size: clamp(4.5rem, 21vw, 20rem);
         line-height: 0.8;
         letter-spacing: -0.05em;
         color: transparent;
-        -webkit-text-stroke: 1.5px color-mix(in srgb, #f6f2e8 28%, transparent);
+        -webkit-text-stroke: 1.5px color-mix(in srgb, #eafff3 24%, transparent);
         user-select: none;
     }
 
@@ -592,6 +632,113 @@
         opacity: 0.12;
         mix-blend-mode: overlay;
         background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+
+    /* ======================= Aurora glass system ======================= */
+    .glass {
+        background: var(--c-glass);
+        border: 1px solid var(--c-glass-border);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        backdrop-filter: blur(18px) saturate(1.2);
+    }
+    .glass-solid {
+        background: var(--c-card);
+        border: 1px solid var(--c-border);
+    }
+    .gradient-text {
+        background: linear-gradient(95deg, #b6f23a 0%, #34d399 55%, #22d3ee 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    :root[data-theme="light"] .gradient-text {
+        background-image: linear-gradient(95deg, #4d7c0f 0%, #0a7a46 55%, #0e7490 100%);
+    }
+
+    /* Luminous drifting glow: radial gradients (no blur filter, so it stays
+       cheap on low-end phones) animated with transform only. */
+    .aurora {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    .aurora i {
+        position: absolute;
+        display: block;
+        border-radius: 50%;
+        will-change: transform;
+        animation: auroraMove 26s ease-in-out infinite alternate;
+    }
+    .aurora i:nth-child(1) {
+        width: 70vw;
+        height: 70vw;
+        left: -22vw;
+        top: -30vw;
+        background: radial-gradient(closest-side, rgb(15 159 110 / 0.62), rgb(15 159 110 / 0.2) 55%, transparent 100%);
+    }
+    .aurora i:nth-child(2) {
+        width: 60vw;
+        height: 60vw;
+        right: -18vw;
+        top: -26vw;
+        background: radial-gradient(closest-side, rgb(182 242 58 / 0.4), rgb(182 242 58 / 0.12) 55%, transparent 100%);
+        animation-duration: 32s;
+        animation-direction: alternate-reverse;
+    }
+    .aurora i:nth-child(3) {
+        width: 74vw;
+        height: 56vw;
+        left: 24vw;
+        top: 6vw;
+        background: radial-gradient(closest-side, rgb(8 145 178 / 0.4), rgb(8 145 178 / 0.12) 55%, transparent 100%);
+        animation-duration: 38s;
+    }
+
+    /* Bento tiles */
+    .bento-tile {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        isolation: isolate;
+    }
+    .bento-tile .tile-img {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .bento-tile .tile-shade {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(to top, rgb(2 11 7 / 0.92) 6%, rgb(2 11 7 / 0.35) 55%, rgb(2 11 7 / 0.05) 100%);
+    }
+    .lift {
+        transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 420ms ease, border-color 300ms ease;
+    }
+    .lift:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-pop);
+        border-color: var(--c-border-strong);
+    }
+    .hscroll {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+    }
+    .hscroll::-webkit-scrollbar {
+        display: none;
+    }
+    .hscroll > * {
+        scroll-snap-align: start;
+        flex: 0 0 auto;
     }
 
     .skeleton {
@@ -612,26 +759,16 @@
        ---------------------------------------------------------------------- */
     .prose-article {
         font-family: var(--font-text);
-        font-size: 19px;
-        line-height: 1.72;
+        font-size: 18.5px;
+        line-height: 1.78;
         color: var(--color-ink);
         overflow-wrap: break-word;
-        font-variation-settings: "opsz" 18;
+        
     }
     @media (min-width: 768px) {
         .prose-article {
             font-size: 21px;
         }
-    }
-    /* Drop cap on the first real paragraph of a story */
-    .reader .prose-article p.dropcap::first-letter {
-        float: left;
-        font-family: var(--font-serif);
-        font-weight: 800;
-        font-size: 5.1em;
-        line-height: 0.78;
-        padding: 0.07em 0.09em 0 0;
-        color: var(--color-ink);
     }
 
     .prose-article > * + * {
@@ -747,8 +884,7 @@
         margin-right: 0;
         padding-left: 1.1em;
         border-left: 3px solid var(--color-brand);
-        font-style: italic;
-        color: var(--color-ink-2);
+                color: var(--color-ink-2);
     }
     .prose-article blockquote > * + * {
         margin-top: 0.7em;
@@ -762,7 +898,6 @@
         border-left: 4px solid var(--c-cta);
         border-top: 0;
         border-bottom: 0;
-        font-style: italic;
         font-family: var(--font-serif);
         font-size: clamp(28px, 3.4vw, 40px);
         line-height: 1.18;
@@ -815,10 +950,9 @@
     /* Callout boxes */
     .prose-article aside.callout {
         margin: 1.9em 0;
-        padding: 1.05em 1.2em 1.15em;
-        border-radius: 6px;
-        border: 1px solid var(--color-line);
-        border-top: 3px solid var(--color-brand);
+        padding: 1.2em 1.4em 1.3em;
+        border-radius: 22px;
+        border: 1px solid var(--c-glass-border);
         background: var(--color-brand-soft);
         font-family: var(--font-sans);
         font-size: 0.82em;
@@ -977,6 +1111,22 @@
 }
 
 @layer utilities {
+    @keyframes auroraMove {
+        0% {
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+            transform: translate3d(6vw, 4vw, 0) scale(1.15);
+        }
+        100% {
+            transform: translate3d(-4vw, 8vw, 0) scale(0.95);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .aurora i {
+            animation: none;
+        }
+    }
     @keyframes lineUp {
         to {
             transform: translateY(0);

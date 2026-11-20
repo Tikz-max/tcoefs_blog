@@ -321,7 +321,8 @@ const ArticleView = () => {
   const gallery = Array.isArray(article.images) ? article.images.slice(1) : [];
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-paper">
+      <div className="aurora -z-10 !h-[760px] opacity-50" aria-hidden="true"><i /><i /><i /></div>
       <ReadingProgress targetRef={bodyRef} />
       <SiteHeader />
 
